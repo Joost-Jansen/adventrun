@@ -66,7 +66,8 @@ def test_wall_shows_names_without_amounts(client):
     assert "Sanne" in body
     assert "Geheim" not in body
     assert "en 1 anoniem" in body
-    assert "0,37" not in body
+    wall = body[body.index('id="muur"') : body.index("</div>", body.index('id="muur"'))]
+    assert "0,37" not in wall and "€" not in wall
 
 
 def test_invalid_amount_is_rejected(client, app):
@@ -139,10 +140,13 @@ def test_average_per_km(client):
 
 def test_calendar_doors_carry_their_details(client):
     post(client, per_km_amount="1")
+    post(client, display_name="Kim", type="fixed", fixed_amount="25")
     body = client.get("/").text
-    # day 21: 21 km, 231 km in total, the shortest day, and what €1/km brings in that day
-    assert 'data-detail="21 december · 21 km · samen 231 km · Kortste dag van het jaar · waard € 21 aan toezeggingen per km"' in body
-    assert "21 December · 21 km · 231 km in total · Shortest day of the year" in client.get("/en").text
+    # day 21: the shortest day; €21 that day (€1 × 21 km), 231 km by then, €231 + €25 fixed pledged by then
+    assert 'data-head="21 december · 21 km · Kortste dag van het jaar" data-a="€\u00a021" data-k="231 km" data-c="€\u00a0256"' in body
+    assert "231 km gelopen tot en met deze dag" in body
+    en = client.get("/en").text
+    assert 'data-head="21 December · 21 km · Shortest day of the year"' in en
 
 
 def test_heaviness_section(client):

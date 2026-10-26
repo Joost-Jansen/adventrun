@@ -145,6 +145,13 @@ a { color: inherit; }
   .door:hover .door-front, .door:focus-visible .door-front, .door.is-open .door-front { transform: none; opacity: 0; }
 }
 .door-detail { margin: 0; min-height: 3em; font-size: var(--step-small); color: var(--muted); }
+.door-panel { background: var(--bg); padding: 0.8rem 0.9rem; display: grid; gap: 0.5rem; }
+.door-panel p { margin: 0; }
+.panel-head { font-weight: 600; }
+.panel-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
+.panel-stats p { display: grid; align-content: start; }
+.panel-num { font-size: var(--step-lead); font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.panel-label, .panel-hint { font-size: var(--step-small); color: var(--muted); }
 .h1 { height: 4%; } .h2 { height: 8%; } .h3 { height: 12%; } .h4 { height: 16%; } .h5 { height: 20%; } .h6 { height: 24%; } .h7 { height: 28%; } .h8 { height: 32%; } .h9 { height: 36%; } .h10 { height: 40%; } .h11 { height: 44%; } .h12 { height: 48%; } .h13 { height: 52%; } .h14 { height: 56%; } .h15 { height: 60%; } .h16 { height: 64%; } .h17 { height: 68%; } .h18 { height: 72%; } .h19 { height: 76%; } .h20 { height: 80%; } .h21 { height: 84%; } .h22 { height: 88%; } .h23 { height: 92%; } .h24 { height: 96%; } .h25 { height: 100%; }
 
 /* the receipt, with a zigzag tear at the bottom */
@@ -194,13 +201,13 @@ a { color: inherit; }
 .why p { margin: 0 0 0.7rem; }
 
 /* ---- how heavy it gets ---- */
-.heavy-section { background: var(--paper); color: var(--ink); }
+.heavy-section { background: var(--field); color: var(--paper); }
 .heavy-grid { display: grid; gap: 2.5rem; }
 @media (min-width: 1000px) { .heavy-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: clamp(2rem, 5vw, 5rem); align-items: center; } }
 .heavy-text .lead { margin: 1rem 0 1.4rem; }
 .heavy-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
-.heavy-stats p { margin: 0; background: var(--bg); padding: 0.8rem 0.9rem; display: grid; align-content: start; }
-.chart { margin: 0; }
+.heavy-stats p { margin: 0; background: var(--paper); color: var(--ink); padding: 0.8rem 0.9rem; display: grid; align-content: start; }
+.chart { margin: 0; background: var(--paper); color: var(--ink); padding: clamp(1rem, 2.5vw, 1.75rem); }
 .chart-plot { position: relative; display: flex; align-items: flex-end; gap: 4px; height: clamp(12rem, 30vw, 20rem); padding-top: 1.6rem; }
 .bar { position: relative; flex: 1; min-width: 0; max-width: 24px; margin-inline: auto; background: #b9bfae; border-radius: 4px 4px 0 0; cursor: pointer; transition: background-color var(--t-hover) ease, transform var(--t-press) var(--ease-out); }
 .bar.is-heavy { background: var(--ink); }

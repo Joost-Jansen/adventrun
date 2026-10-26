@@ -75,15 +75,16 @@ def periods(pledges, start: date, days: int, planned_km: int, lang: str) -> list
     return rows
 
 
-def day_values(pledges, days: int, planned_km: int) -> list[tuple[int, int]]:
-    """Per challenge day: (km run by the end of that day if every day is run in full, what the per-km pledges bring in
-    on that day). Like the receipt rows, each day's value is the difference of two cumulative sums."""
+def day_values(pledges, days: int, planned_km: int) -> list[tuple[int, int, int]]:
+    """Per challenge day, if every day is run in full: (km by the end of that day, what the per-km pledges bring in on
+    that day, what they have brought in by the end of it). Like the receipt rows, each day's value is the difference of
+    two cumulative sums, so the days add up exactly."""
     per_km = [terms(p) for p in pledges if p.type == "per_km"]
     out, before = [], 0
     for n in range(1, days + 1):
         cum = min(n * (n + 1) // 2, planned_km)
         after = sum(pledge_amount_cents(p, cum, planned_km) for p in per_km)
-        out.append((cum, after - before))
+        out.append((cum, after - before, after))
         before = after
     return out
 

@@ -294,3 +294,4 @@ Context: de MCP-tools van de tracker kunnen nu alleen het **actieve** plan tonen
 - 2026-10-26: elk deurtje toont nu "N km"; achter het deurtje staat wat die dag oplevert aan toezeggingen per km (ook als dat nog € 0 is).
 - 2026-10-26: tekst over het beslismoment op 14 december van de site gehaald (hoort in het schema, niet bij de supporters).
 - 2026-10-26: elk deurtje toont klein de datum ("1 dec") boven "1 km"; de stip voor bijzondere dagen alleen op bredere schermen.
+- 2026-10-26: onder de kalender een vakje voor het geopende deurtje (standaard vandaag, buiten de challenge dag 25): bedrag die dag, km tot en met die dag, toegezegd tot en met die dag (per km als alles lukt, plus vaste bedragen). 19 december: "vanaf hier gemiddeld een halve marathon per dag". Blok "Elke dag zwaarder" staat nu onder het formulier, op het groene veld.

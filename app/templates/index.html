@@ -20,17 +20,27 @@
         <div class="door-row" role="presentation">
           {% for tile in row %}
           {% set dv = day_values[tile.day - 1] %}
-          {% set detail = t('door_detail', date=fmt_date(tile.date), km=tile.day, cum=dv[0])
-              ~ ((' · ' ~ t('note_' ~ tile.day)) if tile.day in noted else '')
-              ~ ((' · ' ~ t('door_worth', amount=fmt(dv[1]))) if dv[1] else '') %}
+          {% set head = fmt_date(tile.date) ~ ' · ' ~ tile.day ~ ' km' ~ ((' · ' ~ t('note_' ~ tile.day)) if tile.day in noted else '') %}
+          {% set a, k, c = fmt(dv[1]), dv[0] ~ ' km', fmt(dv[2] + fixed_total) %}
           <span role="listitem" tabindex="0" class="door d{{ tile.day }} door-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}{% if tile.day in noted %} is-noted{% endif %}"
-            data-detail="{{ detail }}"
-            aria-label="{{ detail }}{% if tile.state == 'done' %}, {{ t('tile_done') }}{% elif tile.state == 'partial' %}, {{ t('tile_partial') }}{% elif tile.is_today %}, {{ t('tile_today') }}{% endif %}"><span class="door-inside" aria-hidden="true">{{ fmt(dv[1]) }}</span><span class="door-front" aria-hidden="true"><span class="door-date">{{ fmt_date_short(tile.date) }}</span><span class="door-km">{{ tile.day }}<span class="door-unit">&nbsp;km</span></span></span></span>
+            data-head="{{ head }}" data-a="{{ a }}" data-k="{{ k }}" data-c="{{ c }}"
+            aria-label="{{ head }}; {{ a }} {{ t('panel_day') }}; {{ k }} {{ t('panel_cum_km') }}; {{ c }} {{ t('panel_cum_amount') }}{% if tile.state == 'done' %}; {{ t('tile_done') }}{% elif tile.state == 'partial' %}; {{ t('tile_partial') }}{% elif tile.is_today %}; {{ t('tile_today') }}{% endif %}"><span class="door-inside" aria-hidden="true">{{ a }}</span><span class="door-front" aria-hidden="true"><span class="door-date">{{ fmt_date_short(tile.date) }}</span><span class="door-km">{{ tile.day }}<span class="door-unit">&nbsp;km</span></span></span></span>
           {% endfor %}
         </div>
         {% endfor %}
       </div>
-      <p class="door-detail" id="door-detail" aria-live="polite" data-default="{{ t('door_hint') }}">{{ t('door_hint') }}</p>
+      {# the open door's figures; by default today's (or the last day's outside the challenge) #}
+      {% set shown = calendar[day - 1] if 1 <= day <= days else calendar[-1] %}
+      {% set sv = day_values[shown.day - 1] %}
+      <div class="door-panel" id="door-detail" aria-live="polite">
+        <p class="panel-head" data-slot="head">{{ fmt_date(shown.date) }} · {{ shown.day }} km{% if shown.day in noted %} · {{ t('note_' ~ shown.day) }}{% endif %}</p>
+        <div class="panel-stats">
+          <p><span class="panel-num" data-slot="a">{{ fmt(sv[1]) }}</span><span class="panel-label">{{ t('panel_day') }}</span></p>
+          <p><span class="panel-num" data-slot="k">{{ sv[0] }} km</span><span class="panel-label">{{ t('panel_cum_km') }}</span></p>
+          <p><span class="panel-num" data-slot="c">{{ fmt(sv[2] + fixed_total) }}</span><span class="panel-label">{{ t('panel_cum_amount') }}</span></p>
+        </div>
+        <p class="panel-hint">{{ t('door_hint') }}</p>
+      </div>
       <p class="status">
         {% if day == 0 %}{{ t('before_start', date=start_text) }}{% elif day > days %}{{ t('finished') }}{% else %}{{ t('day_of', day=day, days=days) }}{% endif %}
         · {{ t('km_line', walked=fmt_km(km_walked), total=planned_km) }}
@@ -78,38 +88,6 @@
         {% endif %}
       </div>
     </aside>
-  </div>
-</section>
-
-{# ---- How heavy it gets: km per day against a half marathon ---- #}
-<section class="section heavy-section" id="zwaarte" aria-labelledby="heavy-title">
-  <div class="frame heavy-grid">
-    <div class="heavy-text">
-      <h2 id="heavy-title" class="head" data-reveal>{{ t('heavy_title') }}</h2>
-      <p class="lead" data-reveal>{{ t('heavy_lead', n=heavy.last_days, km=heavy.last_km, avg=fmt_km(heavy.last_avg)) }}</p>
-      <div class="heavy-stats" data-reveal>
-        <p><span class="stat-num">{{ heavy.last_km }}</span><span class="stat-label">{{ t('heavy_stat_last', n=heavy.last_days) }}</span></p>
-        <p><span class="stat-num">{{ fmt_km(heavy.last_avg) }}</span><span class="stat-label">{{ t('heavy_stat_avg', half=fmt_km(heavy.half)) }}</span></p>
-        <p><span class="stat-num">3×</span><span class="stat-label">{{ t('heavy_stat_times') }}</span></p>
-      </div>
-    </div>
-
-    <figure class="chart" data-reveal>
-      <div class="chart-plot" aria-hidden="true" data-detail-target="chart-detail">
-        <div class="chart-ref" aria-hidden="true"><span>{{ t('chart_half', half=fmt_km(heavy.half)) }}</span></div>
-        {% for tile in calendar %}
-        <span class="bar h{{ tile.day }}{% if tile.day >= heavy.last_first %} is-heavy{% endif %}"
-          data-detail="{{ t('chart_bar', date=fmt_date(tile.date), km=tile.day) }}{% if tile.day in noted %} · {{ t('note_' ~ tile.day) }}{% endif %}">{% if loop.last %}<span class="bar-label">{{ tile.day }} km</span>{% endif %}</span>
-        {% endfor %}
-      </div>
-      <div class="chart-axis" aria-hidden="true"><span>{{ t('chart_first') }}</span><span>{{ t('chart_last') }}</span></div>
-      <figcaption class="door-detail" id="chart-detail" data-default="{{ t('chart_hint') }}">{{ t('chart_hint') }}</figcaption>
-      <div class="visually-hidden"><table>
-        <caption>{{ t('chart_label') }}</caption>
-        <thead><tr><th scope="col">{{ t('chart_th_day') }}</th><th scope="col">{{ t('chart_th_km') }}</th></tr></thead>
-        <tbody>{% for tile in calendar %}<tr><td>{{ fmt_date(tile.date) }}</td><td>{{ tile.day }}</td></tr>{% endfor %}</tbody>
-      </table></div>
-    </figure>
   </div>
 </section>
 
@@ -264,6 +242,38 @@
         <p class="hint">{{ t('submit_note') }} <a class="link" href="{{ paths.privacy }}">{{ t('privacy_link') }}</a>.</p>
       </form>
     </div>
+  </div>
+</section>
+
+{# ---- How heavy it gets: km per day against a half marathon ---- #}
+<section class="section heavy-section" id="zwaarte" aria-labelledby="heavy-title">
+  <div class="frame heavy-grid">
+    <div class="heavy-text">
+      <h2 id="heavy-title" class="head" data-reveal>{{ t('heavy_title') }}</h2>
+      <p class="lead" data-reveal>{{ t('heavy_lead', n=heavy.last_days, km=heavy.last_km, avg=fmt_km(heavy.last_avg)) }}</p>
+      <div class="heavy-stats" data-reveal>
+        <p><span class="stat-num">{{ heavy.last_km }}</span><span class="stat-label">{{ t('heavy_stat_last', n=heavy.last_days) }}</span></p>
+        <p><span class="stat-num">{{ fmt_km(heavy.last_avg) }}</span><span class="stat-label">{{ t('heavy_stat_avg', half=fmt_km(heavy.half)) }}</span></p>
+        <p><span class="stat-num">3×</span><span class="stat-label">{{ t('heavy_stat_times') }}</span></p>
+      </div>
+    </div>
+
+    <figure class="chart" data-reveal>
+      <div class="chart-plot" aria-hidden="true" data-detail-target="chart-detail">
+        <div class="chart-ref" aria-hidden="true"><span>{{ t('chart_half', half=fmt_km(heavy.half)) }}</span></div>
+        {% for tile in calendar %}
+        <span class="bar h{{ tile.day }}{% if tile.day >= heavy.last_first %} is-heavy{% endif %}"
+          data-detail="{{ t('chart_bar', date=fmt_date(tile.date), km=tile.day) }}{% if tile.day in noted %} · {{ t('note_' ~ tile.day) }}{% endif %}">{% if loop.last %}<span class="bar-label">{{ tile.day }} km</span>{% endif %}</span>
+        {% endfor %}
+      </div>
+      <div class="chart-axis" aria-hidden="true"><span>{{ t('chart_first') }}</span><span>{{ t('chart_last') }}</span></div>
+      <figcaption class="door-detail" id="chart-detail" data-default="{{ t('chart_hint') }}">{{ t('chart_hint') }}</figcaption>
+      <div class="visually-hidden"><table>
+        <caption>{{ t('chart_label') }}</caption>
+        <thead><tr><th scope="col">{{ t('chart_th_day') }}</th><th scope="col">{{ t('chart_th_km') }}</th></tr></thead>
+        <tbody>{% for tile in calendar %}<tr><td>{{ fmt_date(tile.date) }}</td><td>{{ tile.day }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </figure>
   </div>
 </section>
 
