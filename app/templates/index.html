@@ -108,15 +108,23 @@
           <legend class="visually-hidden">{{ t('step_type') }}</legend>
           <div class="choices">
             <label class="choice">
-              <input type="radio" name="type" value="per_km" {% if form.type != 'fixed' %}checked{% endif %}>
+              <input type="radio" name="type" value="per_km" {% if form.type != 'fixed' or action_page_url %}checked{% endif %}>
               <span class="choice-title">{{ t('type_per_km') }}</span>
               <span class="choice-desc">{{ t('type_per_km_desc') }}</span>
             </label>
+            {% if action_page_url %}
+            {# a fixed amount goes straight to the action page: no promise needed #}
+            <a class="choice choice-link" href="{{ action_page_url }}" rel="noopener" target="_blank">
+              <span class="choice-title">{{ t('type_fixed') }}</span>
+              <span class="choice-desc">{{ t('type_fixed_link_desc') }}</span>
+            </a>
+            {% else %}
             <label class="choice">
               <input type="radio" name="type" value="fixed" {% if form.type == 'fixed' %}checked{% endif %}>
               <span class="choice-title">{{ t('type_fixed') }}</span>
               <span class="choice-desc">{{ t('type_fixed_desc') }}</span>
             </label>
+            {% endif %}
           </div>
           {% if errors.type %}<p class="error">{{ errors.type }}</p>{% endif %}
         </fieldset>
@@ -157,6 +165,7 @@
             </div>
           </div>
 
+          {% if not action_page_url %}
           <div class="group" data-for="fixed">
             <div class="field {% if errors.fixed_amount %}invalid{% endif %}">
               <p class="field-label visually-hidden" id="fixed-label">{{ t('fixed_label') }}</p>
@@ -176,6 +185,7 @@
               {% if errors.fixed_amount %}<p class="error" id="err-fixed">{{ errors.fixed_amount }}</p>{% endif %}
             </div>
           </div>
+          {% endif %}
 
           <p class="summary" id="summary" aria-live="polite" hidden></p>
         </fieldset>

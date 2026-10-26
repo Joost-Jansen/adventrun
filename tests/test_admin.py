@@ -73,6 +73,9 @@ def test_progress_updates_totals_and_csv(client, app):
     # the direct-donation button sits above the pledge form and goes to the action page
     assert '<a class="button button-candle" href="https://example.org/actie" rel="noopener" target="_blank">Doneer nu direct</a>' in home
     assert home.index("Doneer nu direct") < home.index("Of doe een toezegging") < home.index('id="pledge-form"')
+    # with an action page, a fixed amount is a link there, not a promise
+    assert 'value="fixed"' not in home and 'id="fixed_amount"' not in home
+    assert '<a class="choice choice-link" href="https://example.org/actie" rel="noopener" target="_blank">' in home
 
     rows = list(csv.reader(io.StringIO(client.get("/admin/export.csv").text.lstrip("\ufeff")), delimiter=";"))
     header, data = rows[0], rows[1:]
