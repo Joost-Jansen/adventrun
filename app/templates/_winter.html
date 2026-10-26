@@ -1,0 +1,17 @@
+{# Shared winter scenery for a pine stage: falling snow behind, runners in the snowdrift in front. Decoration only. #}
+{% macro runner(n, hat=false) %}<svg class="runner runner-{{ n }}" viewBox="0 0 40 56" focusable="false">
+  <g class="r-body">
+    <g class="r-arm r-back"><polyline points="23,17 21,26 27,23"/></g>
+    <g class="r-leg r-back"><line x1="18" y1="32" x2="18" y2="43"/><g class="r-shin"><line x1="18" y1="43" x2="18" y2="53"/></g></g>
+    <line class="r-torso" x1="18" y1="32" x2="23" y2="16"/>
+    <circle class="r-head" cx="25" cy="9" r="5"/>
+    {% if hat %}<path class="r-hat" d="M19.6 7.4 C20 1.5 28 0 30.4 6 Z M21 4.2 L15.5 8.6 L17.5 9.8 Z"/><circle class="r-pom" cx="15.6" cy="9.4" r="2.2"/>{% endif %}
+    <g class="r-leg r-front"><line x1="18" y1="32" x2="18" y2="43"/><g class="r-shin"><line x1="18" y1="43" x2="18" y2="53"/></g></g>
+    <g class="r-arm r-front"><polyline points="23,17 21,26 27,23"/></g>
+  </g>
+</svg>{% endmacro %}
+
+{% macro snowfall() %}<div class="snowfall" aria-hidden="true"></div>{% endmacro %}
+
+{% macro ground() %}<div class="runners" aria-hidden="true">{{ runner(1, true) }}{{ runner(2) }}{{ runner(3) }}</div>
+  <svg class="drift" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 60 V34 C120 14 220 40 340 28 S560 6 700 22 S940 46 1080 26 S1320 8 1440 24 V60 Z"/></svg>{% endmacro %}

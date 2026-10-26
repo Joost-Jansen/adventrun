@@ -102,6 +102,9 @@ a { color: inherit; }
   padding-block: clamp(0.75rem, 2vh, 1.5rem) clamp(3rem, 6vh, 4.5rem);
 }
 .stage-grid { position: relative; z-index: 3; display: grid; gap: 2.5rem; }
+.stage-thanks { min-height: calc(100svh - 3rem - 4rem); display: grid; align-content: center; padding-bottom: clamp(5rem, 9vh, 7rem); }
+.stage-thanks > .frame { position: relative; z-index: 3; }
+.page-thanks .imprint-only { background: var(--snow); color: var(--muted); }
 @media (min-width: 1100px) {
   .page-home .stage { min-height: calc(100svh - 3rem); display: grid; align-content: center; }
   .stage-grid {

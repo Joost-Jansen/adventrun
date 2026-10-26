@@ -1,7 +1,11 @@
 {% extends "base.html" %}
+{% import "_winter.html" as winter %}
+{% block body_class %}page-thanks{% endblock %}
 {% block title %}{{ t('thanks_html_title') }}{% endblock %}
 {% block robots %}noindex{% endblock %}
 {% block content %}
+<section class="stage stage-thanks">
+{{ winter.snowfall() }}
 <div class="frame narrow-page">
   <article class="sheet">
     <h1>{{ t('thanks_title') }}</h1>
@@ -15,4 +19,6 @@
     <p><a class="link" href="{{ paths.home }}">{{ t('thanks_back') }}</a></p>
   </article>
 </div>
+{{ winter.ground() }}
+</section>
 {% endblock %}
