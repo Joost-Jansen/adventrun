@@ -65,7 +65,7 @@ def test_wall_shows_names_without_amounts(client):
     body = client.get("/").text
     assert "Sanne" in body
     assert "Geheim" not in body
-    assert "+ 1 anoniem" in body
+    assert "en 1 anoniem" in body
     assert "0,37" not in body
 
 
@@ -105,21 +105,24 @@ def test_headline_pledged_is_full_distance_before_the_end(client):
     """€1 per km at 0 km: the big number is €325 (all 325 km), with €0 so far."""
     post(client, per_km_amount="1")
     body = client.get("/").text
-    assert '<p class="value value-xl">€\u00a0325</p>' in body
-    assert "als ik alle 25 dagen (325 km) haal" in body
-    assert "€\u00a00 van €\u00a0325 al binnengelopen" in body
+    assert 'aria-describedby="receipt-note">€\u00a0325</p>' in body
+    assert "Tot nu toe €\u00a00 bij 0 km" in body
     en = client.get("/en").text
-    assert '<p class="value value-xl">€325</p>' in en and "€0 of €325 run in so far" in en
+    assert 'aria-describedby="receipt-note">€325</p>' in en and "So far €0 at 0 km" in en
 
 
-def test_scenarios(client):
-    post(client, display_name="A", per_km_amount="1", max_amount="100")  # 325 km -> capped at 100
-    post(client, display_name="B", per_km_amount="0,10")  # 325 km -> 32,50
+def test_receipt_rows_add_up_to_the_total(client):
+    post(client, display_name="A", per_km_amount="1", max_amount="100")  # capped at 100 during week 2
+    post(client, display_name="B", per_km_amount="0,10")  # 32,50 over 325 km
     post(client, display_name="C", type="fixed", fixed_amount="25")
     body = client.get("/").text
-    rows = re.findall(r'<th scope="row">(.*?)<span>(.*?)</span></th>\s*<td>(.*?)</td>', body)
+    rows = re.findall(r'<li><span>(.*?)</span><span class="dots" aria-hidden="true"></span><span class="num">(.*?)</span></li>', body)
     assert rows == [
-        ("Tot nu toe", "0 km", "€\u00a025"),
-        ("Bij alle 25 dagen", "325 km", "€\u00a0157,50"),  # 100 + 32,50 + 25
+        ("1–7 december · 28 km", "€\u00a030,80"),  # 28 + 2,80
+        ("8–14 december · 77 km", "€\u00a079,70"),  # A reaches its maximum: 72 + 7,70
+        ("15–21 december · 126 km", "€\u00a012,60"),
+        ("22–25 december · 94 km", "€\u00a09,40"),
+        ("Vaste bedragen", "€\u00a025"),
     ]
-    assert "3 toezeggingen: 2 per km, 1 vast bedrag." in body
+    assert '<span>Samen</span><span class="num">€\u00a0157,50</span>' in body  # 30,80 + 79,70 + 12,60 + 9,40 + 25
+    assert 'Muur van steun <span class="count">3</span>' in body

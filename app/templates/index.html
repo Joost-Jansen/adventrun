@@ -1,53 +1,96 @@
 {% extends "base.html" %}
+{% block body_class %}page-home{% endblock %}
+{% block header %}{% endblock %}
 {% block content %}
-<section class="hero">
-  <div class="container hero-inner">
-    <div class="hero-text">
-    <p class="eyebrow">{{ t('eyebrow') }}</p>
-    <h1>{{ t('hero_title') }}</h1>
-    <p class="lead">{{ t('hero_lead') }}</p>
-    <ul class="hero-stats">
-      <li><strong>{{ days }}</strong> {{ t('stat_days') }}</li>
-      <li><strong>{{ planned_km }}</strong> {{ t('stat_km') }}</li>
-      <li><strong>{{ supporters }}</strong> {{ t('stat_supporters') }}</li>
-    </ul>
-    <div class="hero-actions">
-      <a class="button button-light" href="#toezeggen">{{ t('hero_cta') }}</a>
-      <a class="button button-ghost" href="#doneren">{{ t('donate_title') }}</a>
-    </div>
-    </div>
-    <div class="hero-glance" aria-hidden="true">
-      <p class="glance-day">{% if day == 0 %}{{ t('before_start', date=start_text) }}{% elif day > days %}{{ t('finished') }}{% else %}{{ t('day_of', day=day, days=days) }}{% endif %}</p>
-      <p class="glance-km"><strong>{{ fmt_km(km_walked) }}</strong> / {{ planned_km }} km</p>
-      <progress max="{{ planned_km }}" value="{{ km_walked }}"></progress>
-      <div class="glance-row">
-        <div><p class="glance-label">{{ t('pledged_label') }}</p><p class="glance-value">{{ fmt(pledged_now if day > days else pledged_potential) }}</p>
-          <p class="glance-label">{% if day > days %}{{ t('pledged_final_hint', km=fmt_km(km_walked)) }}{% else %}{{ t('pledged_full_hint', total=planned_km) }}{% endif %}</p></div>
-        <div><p class="glance-label">{{ t('donated_label') }}</p><p class="glance-value">{{ fmt(donated_cents) }}</p></div>
+
+{# ---- First screen: the advent calendar card and its receipt, over a winter painting ---- #}
+<section class="hero" aria-labelledby="hero-title">
+  <img class="hero-photo" src="/static/img/stacks-of-wheat-sunset-snow-effect.jpg" width="1920" height="1241" alt="" fetchpriority="high">
+  <div class="frame hero-grid">
+    <article class="card calendar-card">
+      <div class="card-top">
+        <h1 id="hero-title" class="display" data-load>{{ t('hero_title') }}</h1>
+        <a class="link lang-link" href="{{ other_lang_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t('lang_other') }}</a>
       </div>
-    </div>
+      <p class="lead" data-load>{{ t('hero_lead') }}</p>
+
+      <div class="doors" role="list" aria-label="{{ t('calendar_label') }}">
+        {% for row in calendar_rows %}
+        <div class="door-row" role="presentation">
+          {% for tile in row %}
+          <span role="listitem" class="door d{{ tile.day }} door-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}"
+            aria-label="{{ t('tile_label', date=fmt_date(tile.date), km=tile.day) }}{% if tile.state == 'done' %}, {{ t('tile_done') }}{% elif tile.state == 'partial' %}, {{ t('tile_partial') }}{% elif tile.is_today %}, {{ t('tile_today') }}{% endif %}">{{ tile.day }}</span>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <p class="status">
+        {% if day == 0 %}{{ t('before_start', date=start_text) }}{% elif day > days %}{{ t('finished') }}{% else %}{{ t('day_of', day=day, days=days) }}{% endif %}
+        · {{ t('km_line', walked=fmt_km(km_walked), total=planned_km) }}
+      </p>
+
+      <div class="card-bottom">
+        <a class="button" href="#toezeggen" data-load>{{ t('hero_cta') }}</a>
+        <p class="credit">{{ t('hero_credit') }}</p>
+      </div>
+    </article>
+
+    {# the receipt: what has been pledged, adding up to the total #}
+    <aside class="slip" id="toegezegd" aria-labelledby="receipt-title" data-load>
+      <h2 id="receipt-title" class="visually-hidden">{{ t('receipt_title') }}</h2>
+      <p class="total display" aria-describedby="receipt-note">{{ fmt(pledged_now if day > days else pledged_potential) }}</p>
+      <p class="slip-note slip-lead" id="receipt-note">{% if day > days %}{{ t('receipt_final_note', km=fmt_km(km_walked)) }}{% else %}{{ t('receipt_note_short', km=planned_km) }}{% endif %}</p>
+      {% if day <= days %}
+      <progress class="meter" max="{{ [pledged_potential, 1]|max }}" value="{{ pledged_now }}" aria-label="{{ t('receipt_bar_label', now=fmt(pledged_now), total=fmt(pledged_potential)) }}"></progress>
+      <p class="slip-note">{{ t('receipt_caption', now=fmt(pledged_now), km=fmt_km(km_walked)) }}</p>
+      {% endif %}
+
+      {% if supporters %}
+      <ul class="slip-rows">
+        {% for p in periods %}
+        <li><span>{{ t('receipt_row_period', dates=p.dates, km=p.km) }}</span><span class="dots" aria-hidden="true"></span><span class="num">{{ fmt(p.cents) }}</span></li>
+        {% endfor %}
+        <li><span>{{ t('receipt_group_fixed') }}</span><span class="dots" aria-hidden="true"></span><span class="num">{{ fmt(fixed_total) }}</span></li>
+      </ul>
+      <p class="slip-total"><span>{{ t('receipt_total') }}</span><span class="num">{{ fmt(pledged_potential) }}</span></p>
+      {% else %}
+      <p class="slip-note">{{ t('receipt_none') }}</p>
+      {% endif %}
+
+      <div class="slip-donate" id="doneren">
+        <p><strong>{{ t('receipt_donated', amount=fmt(donated_cents)) }}</strong></p>
+        {% if action_page_url %}
+          <a class="button button-block" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('strip_button') }}</a>
+        {% else %}
+          <p class="soon">{{ t('donate_soon') }}</p>
+        {% endif %}
+      </div>
+    </aside>
   </div>
 </section>
 
-<div class="container layout">
-  <div class="main-col">
-    {% include "_progress.html" %}
+{# ---- The reply card: the pledge form, with the wall of support beside it ---- #}
+<section class="section reply-section" id="toezeggen" aria-labelledby="form-title">
+  <div class="frame reply-grid">
+    <div class="reply-aside">
+      <p class="lead" data-reveal>{{ t('why_short') }}</p>
+      <p data-reveal>{{ t('reply_aside') }}</p>
+      <div class="guest-card" id="muur" data-reveal>
+        <h2 class="lead-head">{{ t('wall_title') }} <span class="count">{{ supporters }}</span></h2>
+        {% if supporters == 0 %}
+          <p class="guest-names">{{ t('wall_empty') }}</p>
+        {% else %}
+          <p class="guest-names">{% for name in wall %}<span class="guest">{{ name }}</span>{% if not loop.last %}&nbsp;· {% endif %}{% endfor %}{% if anonymous %}{% if wall %}&nbsp;· {% endif %}<span class="guest">{{ t('wall_anon', n=anonymous) }}</span>{% endif %}</p>
+          <p class="hint">{{ t('wall_note') }}</p>
+        {% endif %}
+      </div>
+    </div>
 
-    <section class="card story" aria-labelledby="waarom">
-      <h2 id="waarom">{{ t('story_title') }}</h2>
-      <p>{{ t('story_p1') }}</p>
-      <p>{{ t('story_p2') }}</p>
-      <p class="signature">{{ owner }}</p>
-    </section>
-
-    <section class="card" id="toezeggen" aria-labelledby="toezeggen-title">
-      <h2 id="toezeggen-title">{{ t('form_title') }}</h2>
-      <p>{{ t('form_intro') }}</p>
+    <div class="reply-card card" data-reveal>
+      <h2 id="form-title" class="lead-head">{{ t('form_title') }}</h2>
 
       {% if errors %}
-      <div class="errors" role="alert">
-        <p><strong>{{ t('errors_title') }}</strong> {{ t('errors_body') }}</p>
-      </div>
+      <div class="errors" role="alert"><p><strong>{{ t('errors_title') }}</strong> {{ t('errors_body') }}</p></div>
       {% endif %}
 
       <form method="post" action="/toezeggen" id="pledge-form" novalidate
@@ -57,17 +100,15 @@
         <input type="hidden" name="lang" value="{{ lang }}">
 
         <fieldset class="step {% if errors.type %}invalid{% endif %}">
-          <legend><span class="step-n" aria-hidden="true">1</span> {{ t('step_type') }}</legend>
-          <div class="choice-cards">
-            <label class="choice-card">
+          <legend class="visually-hidden">{{ t('step_type') }}</legend>
+          <div class="choices">
+            <label class="choice">
               <input type="radio" name="type" value="per_km" {% if form.type != 'fixed' %}checked{% endif %}>
-              <span class="choice-icon" aria-hidden="true">🏃</span>
               <span class="choice-title">{{ t('type_per_km') }}</span>
               <span class="choice-desc">{{ t('type_per_km_desc') }}</span>
             </label>
-            <label class="choice-card">
+            <label class="choice">
               <input type="radio" name="type" value="fixed" {% if form.type == 'fixed' %}checked{% endif %}>
-              <span class="choice-icon" aria-hidden="true">🎁</span>
               <span class="choice-title">{{ t('type_fixed') }}</span>
               <span class="choice-desc">{{ t('type_fixed_desc') }}</span>
             </label>
@@ -76,8 +117,7 @@
         </fieldset>
 
         <fieldset class="step">
-          <legend><span class="step-n" aria-hidden="true">2</span> {{ t('step_amount') }}</legend>
-
+          <legend class="visually-hidden">{{ t('step_amount') }}</legend>
           <div class="group" data-for="per_km">
             <div class="field {% if errors.per_km_amount %}invalid{% endif %}">
               <p class="field-label" id="perkm-label">{{ t('per_km_label') }}</p>
@@ -88,23 +128,27 @@
                 </button>
                 {% endfor %}
               </div>
-              <label for="per_km_amount" class="sub-label">{{ t('other_amount') }}</label>
-              <div class="input-money">
-                <span aria-hidden="true">€</span>
-                <input id="per_km_amount" name="per_km_amount" inputmode="decimal" autocomplete="off" placeholder="{{ per_km_choices[1].value }}" value="{{ form.per_km_amount or '' }}"
-                  {% if errors.per_km_amount %}aria-invalid="true" aria-describedby="err-perkm"{% endif %}>
-                <span class="unit">/ km</span>
-              </div>
-              {% if errors.per_km_amount %}<p class="error" id="err-perkm">{{ errors.per_km_amount }}</p>{% endif %}
-            </div>
-            <div class="field {% if errors.max_amount %}invalid{% endif %}">
-              <label for="max_amount">{{ t('max_label') }}</label>
-              <div class="input-money">
-                <span aria-hidden="true">€</span>
-                <input id="max_amount" name="max_amount" inputmode="decimal" autocomplete="off" placeholder="25" value="{{ form.max_amount or '' }}"
-                  aria-describedby="hint-max{% if errors.max_amount %} err-max{% endif %}" {% if errors.max_amount %}aria-invalid="true"{% endif %}>
+              <div class="money-row">
+                <div class="money-field">
+                  <label for="per_km_amount" class="sub-label">{{ t('other_amount') }}</label>
+                  <div class="money">
+                    <span aria-hidden="true">€</span>
+                    <input id="per_km_amount" name="per_km_amount" inputmode="decimal" autocomplete="off" placeholder="{{ per_km_choices[1].value }}" value="{{ form.per_km_amount or '' }}"
+                      {% if errors.per_km_amount %}aria-invalid="true" aria-describedby="err-perkm"{% endif %}>
+                    <span class="unit">/ km</span>
+                  </div>
+                </div>
+                <div class="money-field {% if errors.max_amount %}invalid{% endif %}">
+                  <label for="max_amount" class="sub-label">{{ t('max_label') }}</label>
+                  <div class="money">
+                    <span aria-hidden="true">€</span>
+                    <input id="max_amount" name="max_amount" inputmode="decimal" autocomplete="off" placeholder="25" value="{{ form.max_amount or '' }}"
+                      aria-describedby="hint-max{% if errors.max_amount %} err-max{% endif %}" {% if errors.max_amount %}aria-invalid="true"{% endif %}>
+                  </div>
+                </div>
               </div>
               <p class="hint" id="hint-max">{{ t('max_hint') }}</p>
+              {% if errors.per_km_amount %}<p class="error" id="err-perkm">{{ errors.per_km_amount }}</p>{% endif %}
               {% if errors.max_amount %}<p class="error" id="err-max">{{ errors.max_amount }}</p>{% endif %}
             </div>
           </div>
@@ -120,7 +164,7 @@
                 {% endfor %}
               </div>
               <label for="fixed_amount" class="sub-label">{{ t('other_amount') }}</label>
-              <div class="input-money">
+              <div class="money">
                 <span aria-hidden="true">€</span>
                 <input id="fixed_amount" name="fixed_amount" inputmode="decimal" autocomplete="off" placeholder="{{ fixed_choices[1].value }}" value="{{ form.fixed_amount or '' }}"
                   {% if errors.fixed_amount %}aria-invalid="true" aria-describedby="err-fixed"{% endif %}>
@@ -133,7 +177,7 @@
         </fieldset>
 
         <fieldset class="step">
-          <legend><span class="step-n" aria-hidden="true">3</span> {{ t('step_you') }}</legend>
+          <legend class="visually-hidden">{{ t('step_you') }}</legend>
           <div class="field {% if errors.display_name %}invalid{% endif %}">
             <label for="display_name">{{ t('name_label') }}</label>
             <input id="display_name" name="display_name" maxlength="60" autocomplete="nickname" value="{{ form.display_name or '' }}"
@@ -154,12 +198,12 @@
             <p class="hint" id="hint-contact">{{ t('contact_hint') }}</p>
           </div>
 
-          <div class="field {% if errors.message %}invalid{% endif %}">
-            <label for="message">{{ t('message_label') }}</label>
-            <textarea id="message" name="message" maxlength="500" rows="3" aria-describedby="hint-message">{{ form.message or '' }}</textarea>
+          <details class="field more" {% if form.message or errors.message %}open{% endif %}>
+            <summary>{{ t('message_label') }}</summary>
+            <textarea id="message" name="message" maxlength="500" rows="3" aria-label="{{ t('message_label') }}" aria-describedby="hint-message">{{ form.message or '' }}</textarea>
             {% if errors.message %}<p class="error">{{ errors.message }}</p>{% endif %}
             <p class="hint" id="hint-message">{{ t('message_hint') }}</p>
-          </div>
+          </details>
 
           <div class="hp" aria-hidden="true">
             <label for="website">{{ t('honeypot') }}</label>
@@ -167,41 +211,49 @@
           </div>
         </fieldset>
 
-        <div class="submit-row">
-          <button type="submit" class="button button-big">{{ t('submit') }}</button>
-          <p class="hint">{{ t('submit_note') }} <a href="{{ paths.privacy }}">{{ t('privacy_link') }}</a>.</p>
-        </div>
+        <button type="submit" class="button button-bar">{{ t('submit') }}</button>
+        <p class="hint">{{ t('submit_note') }} <a class="link" href="{{ paths.privacy }}">{{ t('privacy_link') }}</a>.</p>
       </form>
-    </section>
-  </div>
-
-  <aside class="side-col">
-    <div class="side-sticky">
-      {% include "_donate.html" %}
-
-      <section class="card" aria-labelledby="muur">
-        <h2 id="muur">{{ t('wall_title') }} <span class="count">{{ supporters }}</span></h2>
-        {% if supporters == 0 %}
-          <p class="muted">{{ t('wall_empty') }}</p>
-        {% else %}
-          <ul class="wall">
-            {% for name in wall %}<li>{{ name }}</li>{% endfor %}
-            {% if anonymous %}<li class="anon">{{ t('wall_anon', n=anonymous) }}</li>{% endif %}
-          </ul>
-          <p class="hint">{{ t('wall_note') }}</p>
-        {% endif %}
-      </section>
-
-      <section class="card" aria-labelledby="delen">
-        <h2 id="delen">{{ t('share_title') }}</h2>
-        <p class="muted">{{ t('share_body') }}</p>
-        <div class="share">
-          <input id="share-url" readonly value="{{ paths.home }}" aria-label="{{ t('share_title') }}">
-          <button type="button" class="button button-secondary" id="share-btn" data-copied="{{ t('share_copied') }}">{{ t('share_copy') }}</button>
-        </div>
-      </section>
     </div>
-  </aside>
-</div>
+  </div>
+</section>
+
+{# ---- Answers as reading text ---- #}
+<section class="section faq-section" id="vragen" aria-labelledby="faq-title">
+  <div class="frame faq-grid">
+    <h2 id="faq-title" class="head" data-reveal>{{ t('faq_title') }}</h2>
+    <div class="faq-text" data-reveal>
+      {% for n in (1, 3, 4, 5, 7, 10) %}
+      <p><strong>{{ t('faq_' ~ n ~ '_q') }}</strong> {{ t('faq_' ~ n ~ '_a') }}</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
 {% endblock %}
-{% block scripts %}<script src="/static/form.js" defer></script>{% endblock %}
+
+{% block footer %}
+<footer class="postcard-wrap">
+  <div class="frame">
+    <div class="postcard">
+      <div class="postcard-left">
+        <h2 class="lead-head">{{ t('footer_signoff') }}</h2>
+        <p>{{ t('footer_message') }}</p>
+        <div class="share">
+          <input id="share-url" readonly value="{{ paths.home }}" aria-label="{{ t('share_copy') }}">
+          <button type="button" class="button" id="share-btn" data-copied="{{ t('share_copied') }}">{{ t('share_copy') }}</button>
+        </div>
+      </div>
+      <div class="postcard-right">
+        <img class="stamp" src="/static/img/snow-field-morning-roxbury.jpg" width="400" height="504" alt="{{ t('stamp_alt') }}" loading="lazy" decoding="async">
+        <ul class="address">
+          {% if action_page_url %}<li><a class="link" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('footer_action_page') }}</a></li>{% endif %}
+          <li><a class="link" href="{{ other_lang_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t('lang_other') }}</a></li>
+          <li><a class="link" href="{{ paths.privacy }}">{{ t('footer_privacy') }}</a></li>
+        </ul>
+      </div>
+      <p class="imprint">{{ t('footer_personal') }} {{ t('footer_credits') }}</p>
+    </div>
+  </div>
+</footer>
+{% endblock %}
+{% block scripts %}<script src="/static/form.js" defer></script><script src="/static/motion.js" defer></script>{% endblock %}

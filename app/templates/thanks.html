@@ -2,18 +2,17 @@
 {% block title %}{{ t('thanks_html_title') }}{% endblock %}
 {% block robots %}noindex{% endblock %}
 {% block content %}
-<div class="container narrow-page">
-  <section class="card card-thanks">
-    <p class="big-emoji" aria-hidden="true">💙</p>
+<div class="frame narrow-page">
+  <article class="sheet">
     <h1>{{ t('thanks_title') }}</h1>
     <p>{{ t('thanks_p1') }}</p>
     <p>{{ t('thanks_p2') }}</p>
     {% if action_page_url %}
-      <p><a class="button" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('thanks_button') }} <span aria-hidden="true">↗</span></a></p>
+      <p><a class="button" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('thanks_button') }}</a></p>
     {% else %}
       <p class="soon">{{ t('donate_soon') }}</p>
     {% endif %}
-    <p><a href="{{ paths.home }}">← {{ t('thanks_back') }}</a></p>
-  </section>
+    <p><a class="link" href="{{ paths.home }}">{{ t('thanks_back') }}</a></p>
+  </article>
 </div>
 {% endblock %}

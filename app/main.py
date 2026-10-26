@@ -20,7 +20,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from .calc import challenge_day, euro, km_text, parse_euro_cents, parse_km, pledge_amount_cents, pledged_totals
 from .config import Settings, load_settings
 from .db import PLEDGE_STATUSES, Pledge, Progress, SiteSettings, make_sessionmaker
-from .i18n import LANGS, PATHS, format_date, translator
+from .i18n import LANGS, PATHS, format_date, format_range, translator
 from .messages import STATUS_LABELS, describe, export_csv, terms
 from .security import RateLimiter, check_csrf, check_origin, client_ip, csrf_token, password_ok, security_headers
 
@@ -57,6 +57,26 @@ def calendar(start: date, days: int, today_: date, km_by_date: dict) -> list[dic
             state = "past" if d < today_ else "future"
         tiles.append({"day": n, "date": d, "km": km, "state": state, "is_today": d == today_})
     return tiles
+
+
+def periods(pledges, start: date, days: int, planned_km: int, lang: str) -> list[dict]:
+    """The challenge in weeks (1-7, 8-14, ... December) with what the per-km pledges bring in during each, if every
+    km is run. The rows add up exactly to the per-km part of the total: each is the difference of two cumulative sums."""
+    per_km = [terms(p) for p in pledges if p.type == "per_km"]
+    rows, km_before, cents_before = [], 0, 0
+    for first in range(1, days + 1, 7):
+        last = min(first + 6, days)
+        km = sum(range(first, last + 1))
+        km_after = min(km_before + km, planned_km)
+        cents_after = sum(pledge_amount_cents(p, km_after, planned_km) for p in per_km)
+        d1, d2 = start + timedelta(days=first - 1), start + timedelta(days=last - 1)
+        rows.append({"first": first, "last": last, "km": km, "cents": cents_after - cents_before, "dates": format_range(d1, d2, lang)})
+        km_before, cents_before = km_after, cents_after
+    return rows
+
+
+def calendar_rows(tiles: list[dict], per_row: int = 5) -> list[list[dict]]:
+    return [tiles[i : i + per_row] for i in range(0, len(tiles), per_row)]
 
 
 PER_KM_CHOICES = (5, 10, 25, 50, 100)  # cents per km
@@ -116,7 +136,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         t = today()
         day = challenge_day(t, settings.challenge_start, settings.challenge_days)
         km_by_date = {r.date: r.km for r in s.scalars(select(Progress))}
-        today_row = km_by_date.get(t)
         return {
             "lang": lang,
             "t": translator(lang, settings.owner_name, charity[lang]),
@@ -126,16 +145,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "donated_cents": cfg.donated_total_cents,
             "planned_km": planned,
             "km_walked": Decimal(str(km_walked)),
-            "km_today": today_row,
             "day": day,
             "days": settings.challenge_days,
             "start": settings.challenge_start,
             "start_text": format_date(settings.challenge_start, lang),
-            "calendar": calendar(settings.challenge_start, settings.challenge_days, t, km_by_date),
+            "calendar": (tiles := calendar(settings.challenge_start, settings.challenge_days, t, km_by_date)),
+            "calendar_rows": calendar_rows(tiles),
+            "periods": periods(pledges, settings.challenge_start, settings.challenge_days, planned, lang),
+            "fixed_total": sum(p.amount_cents for p in pledges if p.type == "fixed"),
             "pledged_now": now_cents,
             "pledged_potential": potential_cents,
-            "count_per_km": sum(1 for p in pledges if p.type == "per_km"),
-            "count_fixed": sum(1 for p in pledges if p.type == "fixed"),
             "supporters": len(pledges),
             "wall": [p.display_name for p in pledges if p.show_name and p.display_name],
             "anonymous": sum(1 for p in pledges if not (p.show_name and p.display_name)),
@@ -153,6 +172,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "other_lang_url": PATHS[name][other],
             "fmt": lambda cents: euro(cents, lang),
             "fmt_km": lambda km: km_text(km, lang),
+            "fmt_date": lambda d: format_date(d, lang),
         }
         if name == "home":
             ctx |= amount_choices(ctx["planned_km"], lang)

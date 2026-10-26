@@ -6,35 +6,38 @@
   <title>{% block title %}{{ t('html_title') }}{% endblock %}</title>
   <meta name="description" content="{{ t('meta_description') }}">
   <meta name="robots" content="{% block robots %}index{% endblock %}">
-  <meta name="theme-color" content="#173d2e">
+  <meta name="theme-color" content="#351a2b">
   {% if alternates is defined %}
   {% for l, path in alternates.items() %}<link rel="alternate" hreflang="{{ l }}" href="{{ path }}">
   {% endfor %}{% endif %}
+  <link rel="preload" href="/static/fonts/bricolage-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/static/style.css">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8E%84%3C/text%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23351a2b'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='14' font-weight='700' fill='%23edccbe' text-anchor='middle'%3E25%3C/text%3E%3C/svg%3E">
+  <script src="/static/js-on.js"></script>
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
   <a class="skip" href="#main">{{ t('skip') }}</a>
-  <header class="topbar">
-    <div class="container topbar-inner">
-      <a class="brand" href="{{ paths.home if paths is defined else '/' }}"><span aria-hidden="true">🎄</span> {{ t('brand') }}</a>
+  {% block header %}
+  <header class="bar">
+    <div class="frame bar-inner">
+      <a class="wordmark" href="{{ paths.home if paths is defined else '/' }}">{{ t('brand') }}</a>
       {% if alternates is defined %}
-      <nav class="lang-switch" aria-label="{{ t('lang_switch_label') }}">
-        <a href="{{ alternates.nl }}" hreflang="nl" lang="nl" {% if lang == 'nl' %}aria-current="true"{% endif %}>NL</a>
-        <a href="{{ alternates.en }}" hreflang="en" lang="en" {% if lang == 'en' %}aria-current="true"{% endif %}>EN</a>
-      </nav>
+      <a class="bar-link" href="{{ other_lang_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t('lang_other') }}</a>
       {% endif %}
     </div>
   </header>
+  {% endblock %}
   <main id="main">
     {% block content %}{% endblock %}
   </main>
-  <footer class="site-footer">
-    <div class="container">
+  {% block footer %}
+  <footer class="imprint-only">
+    <div class="frame">
       <p>{{ t('footer_personal') }}</p>
       {% if paths is defined %}<p><a href="{{ paths.home }}">{{ t('footer_home') }}</a> · <a href="{{ paths.privacy }}">{{ t('footer_privacy') }}</a></p>{% endif %}
     </div>
   </footer>
+  {% endblock %}
   {% block scripts %}{% endblock %}
 </body>
 </html>

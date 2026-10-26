@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block title %}{{ t('privacy_title') }}{% endblock %}
 {% block content %}
-<div class="container narrow-page">
-  <section class="card prose">
+<div class="frame narrow-page">
+  <article class="sheet prose">
     <h1>{{ t('privacy_title') }}</h1>
     <p>{{ t('privacy_intro') }}</p>
     <h2>{{ t('privacy_what_h') }}</h2>
@@ -22,6 +22,6 @@
     <p>{{ t('privacy_retention') }}</p>
     <h2>{{ t('privacy_rights_h') }}</h2>
     <p>{{ t('privacy_rights') }}</p>
-  </section>
+  </article>
 </div>
 {% endblock %}
