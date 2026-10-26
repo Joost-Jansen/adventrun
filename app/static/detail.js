@@ -1,36 +1,35 @@
-// A readout per group of marks. Pointing at, focusing or tapping a mark shows its details; a tap keeps them until the
-// next tap. Calendar doors fill the slots of the panel below the calendar (data-head, data-a, data-k, data-c); chart
-// bars set one line of text (data-detail). Everything shown here is also in the marks' aria-labels or the chart table.
+// Calendar doors open on hover and focus (CSS); a tap or click keeps one door open until the next tap, Escape or a
+// tap elsewhere. Chart bars write their day into the line under the chart. Everything shown is also in aria-labels
+// or the chart's table.
 (() => {
+  const doors = [...document.querySelectorAll(".door")];
+  let open = null;
+  const close = () => {
+    if (open) open.classList.remove("is-open");
+    open = null;
+  };
+  doors.forEach((door) =>
+    door.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const same = open === door;
+      close();
+      if (!same) {
+        door.classList.add("is-open");
+        open = door;
+      }
+    }),
+  );
+  document.addEventListener("click", close);
+  document.addEventListener("keydown", (e) => e.key === "Escape" && close());
+
   document.querySelectorAll("[data-detail-target]").forEach((group) => {
     const out = document.getElementById(group.dataset.detailTarget);
     if (!out) return;
-    const slots = [...out.querySelectorAll("[data-slot]")];
-    const initial = slots.length ? slots.map((s) => s.textContent) : [out.textContent];
-    const marks = [...group.querySelectorAll(slots.length ? "[data-head]" : "[data-detail]")];
-    let pinned = null;
-    const show = (el) => {
-      if (!el) {
-        if (slots.length) slots.forEach((s, i) => (s.textContent = initial[i]));
-        else out.textContent = initial[0];
-      } else if (slots.length) {
-        slots.forEach((s) => (s.textContent = el.dataset[s.dataset.slot]));
-      } else {
-        out.textContent = el.dataset.detail;
-      }
-    };
-    const reset = () => show(pinned);
-    marks.forEach((el) => {
-      el.addEventListener("pointerenter", () => show(el));
-      el.addEventListener("pointerleave", reset);
-      el.addEventListener("focus", () => show(el));
-      el.addEventListener("blur", reset);
-      el.addEventListener("click", () => {
-        if (pinned) pinned.classList.remove("is-open");
-        pinned = pinned === el ? null : el;
-        if (pinned) pinned.classList.add("is-open");
-        reset();
-      });
+    const initial = out.textContent;
+    group.querySelectorAll("[data-detail]").forEach((el) => {
+      el.addEventListener("pointerenter", () => (out.textContent = el.dataset.detail));
+      el.addEventListener("pointerleave", () => (out.textContent = initial));
+      el.addEventListener("click", () => (out.textContent = el.dataset.detail));
     });
   });
 })();

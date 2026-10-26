@@ -15,16 +15,15 @@
       <p class="lead" data-load>{{ t('hero_lead') }}</p>
 
       {% set noted = [1, 15, 19, 21, 25] %}
-      <div class="doors" role="list" aria-label="{{ t('calendar_label') }}" data-detail-target="door-detail">
+      <div class="doors" role="list" aria-label="{{ t('calendar_label') }}">
         {% for row in calendar_rows %}
         <div class="door-row" role="presentation">
           {% for tile in row %}
           {% set dv = day_values[tile.day - 1] %}
           {% set head = fmt_date(tile.date) ~ ' · ' ~ tile.day ~ ' km' ~ ((' · ' ~ t('note_' ~ tile.day)) if tile.day in noted else '') %}
           {% set a, k, c = fmt(dv[1]), dv[0] ~ ' km', fmt(dv[2] + fixed_total) %}
-          <span role="listitem" tabindex="0" class="door d{{ tile.day }} door-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}{% if tile.day in noted %} is-noted{% endif %}"
-            data-head="{{ head }}" data-a="{{ a }}" data-k="{{ k }}" data-c="{{ c }}"
-            aria-label="{{ head }}; {{ a }} {{ t('panel_day') }}; {{ k }} {{ t('panel_cum_km') }}; {{ c }} {{ t('panel_cum_amount') }}{% if tile.state == 'done' %}; {{ t('tile_done') }}{% elif tile.state == 'partial' %}; {{ t('tile_partial') }}{% elif tile.is_today %}; {{ t('tile_today') }}{% endif %}"><span class="door-inside" aria-hidden="true">{{ a }}</span><span class="door-front" aria-hidden="true"><span class="door-num">{{ tile.day }}</span><span class="door-units"><span>{{ month_short }}</span><span>km</span></span></span></span>
+          <span role="listitem" tabindex="0" class="door d{{ tile.day }} col{{ loop.index }} row{{ (tile.day - 1) // 5 + 1 }} door-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}{% if tile.day in noted %} is-noted{% endif %}"
+            aria-label="{{ head }}; {{ a }} {{ t('panel_day') }}; {{ k }} {{ t('panel_cum_km') }}; {{ c }} {{ t('panel_cum_amount') }}{% if tile.state == 'done' %}; {{ t('tile_done') }}{% elif tile.state == 'partial' %}; {{ t('tile_partial') }}{% elif tile.is_today %}; {{ t('tile_today') }}{% endif %}"><span class="door-inside" aria-hidden="true">{{ a }}</span><span class="door-front" aria-hidden="true"><span class="door-num">{{ tile.day }}</span><span class="door-units"><span>{{ month_short }}</span><span>km</span></span></span><span class="door-pop" aria-hidden="true"><span class="pop-head">{{ head }}</span><span class="pop-stats"><span class="pop-stat"><span class="pop-num">{{ a }}</span><span class="pop-label">{{ t('panel_day') }}</span></span><span class="pop-stat"><span class="pop-num">{{ k }}</span><span class="pop-label">{{ t('panel_cum_km') }}</span></span><span class="pop-stat"><span class="pop-num">{{ c }}</span><span class="pop-label">{{ t('panel_cum_amount') }}</span></span></span></span></span>
           {% endfor %}
         </div>
         {% endfor %}
@@ -67,17 +66,6 @@
       <p class="slip-note">{{ t('receipt_none') }}</p>
       {% endif %}
 
-      {# the open door's figures; by default today's (or the last day's outside the challenge) #}
-      {% set shown = calendar[day - 1] if 1 <= day <= days else calendar[-1] %}
-      {% set sv = day_values[shown.day - 1] %}
-      <div class="door-panel" id="door-detail" aria-live="polite">
-        <p class="panel-head" data-slot="head">{{ fmt_date(shown.date) }} · {{ shown.day }} km{% if shown.day in noted %} · {{ t('note_' ~ shown.day) }}{% endif %}</p>
-        <div class="panel-stats">
-          <p><span class="panel-num" data-slot="a">{{ fmt(sv[1]) }}</span><span class="panel-label">{{ t('panel_day') }}</span></p>
-          <p><span class="panel-num" data-slot="k">{{ sv[0] }} km</span><span class="panel-label">{{ t('panel_cum_km') }}</span></p>
-          <p><span class="panel-num" data-slot="c">{{ fmt(sv[2] + fixed_total) }}</span><span class="panel-label">{{ t('panel_cum_amount') }}</span></p>
-        </div>
-      </div>
       <div class="slip-donate" id="doneren">
         <p><strong>{{ t('receipt_donated', amount=fmt(donated_cents)) }}</strong></p>
         {% if action_page_url %}
