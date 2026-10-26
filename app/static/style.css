@@ -123,7 +123,8 @@ a { color: inherit; }
   background: var(--ink); color: var(--gold); font-size: var(--step-small); font-weight: 600; font-variant-numeric: tabular-nums;
   cursor: pointer; outline-offset: 2px;
 }
-.door-inside { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.45rem; white-space: nowrap; overflow: hidden; }
+.door-inside { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.4rem; white-space: nowrap; overflow: hidden; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.door-unit { font-size: var(--step-small); font-weight: 500; }
 .door-front {
   position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 0.3rem 0.5rem; font-size: var(--step-body);
   background: var(--bg); color: var(--muted); transform-origin: left center; backface-visibility: hidden;
@@ -134,8 +135,8 @@ a { color: inherit; }
 .door-done { background: var(--accent-strong); }
 .is-noted .door-front::after { content: ""; position: absolute; top: 6px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .is-today .door-front { outline: 4px dotted var(--ink); outline-offset: -4px; color: var(--ink); }
-@media (hover: hover) and (pointer: fine) { .door:hover .door-front { transform: rotateY(-78deg); } }
-.door:focus-visible .door-front, .door.is-open .door-front { transform: rotateY(-78deg); }
+@media (hover: hover) and (pointer: fine) { .door:hover .door-front { transform: rotateY(-86deg); } }
+.door:focus-visible .door-front, .door.is-open .door-front { transform: rotateY(-86deg); }
 @media (prefers-reduced-motion: reduce) {
   .door-front { transition: none; }
   .door:hover .door-front, .door:focus-visible .door-front, .door.is-open .door-front { transform: none; opacity: 0; }

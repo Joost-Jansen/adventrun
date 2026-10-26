@@ -23,7 +23,7 @@ MONTHS = {
 T: dict[str, dict[str, str]] = {
     "nl": {
         "receipt_note_short": "toegezegd als ik alle {km} km haal",
-        "door_hint": "Ga over een deurtje of tik erop voor de details van die dag.",
+        "door_hint": "Open een deurtje: achter elke dag staat wat die km aan toezeggingen opleveren.",
         "door_detail": "{date} · {km} km · samen {cum} km",
         "door_worth": "waard {amount} aan toezeggingen per km",
         "note_1": "De eerste km",
@@ -188,7 +188,7 @@ T: dict[str, dict[str, str]] = {
     },
     "en": {
         "receipt_note_short": "pledged if I run all {km} km",
-        "door_hint": "Hover over a door or tap it for that day's details.",
+        "door_hint": "Open a door: behind each day is what its km bring in pledges.",
         "door_detail": "{date} · {km} km · {cum} km in total",
         "door_worth": "worth {amount} in per-km pledges",
         "note_1": "The first km",
