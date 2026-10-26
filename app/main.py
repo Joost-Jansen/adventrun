@@ -187,7 +187,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "owner": settings.owner_name,
             "owner_photo": settings.owner_photo,
             "charity": charity[lang],
-            "action_page_url": cfg.action_page_url,
+            "action_page_url": cfg.action_page_url or settings.action_page_url,
             "donated_cents": cfg.donated_total_cents,
             "planned_km": planned,
             "km_walked": Decimal(str(km_walked)),

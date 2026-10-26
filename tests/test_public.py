@@ -204,3 +204,16 @@ def test_owner_photo_only_when_set(settings):
     assert 'class="avatar"' not in TestClient(create_app(replace(settings, owner_photo=""))).get("/").text
     body = TestClient(create_app(replace(settings, owner_photo="/static/img/owner.webp"))).get("/").text
     assert '<img src="/static/img/owner.webp" alt="Joost"' in body and "loopt voor het Rode Kruis" in body
+
+
+def test_action_page_from_environment(settings):
+    """ACTION_PAGE_URL works until the admin sets a link: fixed amounts go straight there."""
+    from dataclasses import replace
+
+    from fastapi.testclient import TestClient
+
+    from app.main import create_app
+
+    body = TestClient(create_app(replace(settings, action_page_url="https://example.org/actie"))).get("/en").text
+    assert '<a class="choice choice-link" href="https://example.org/actie"' in body and 'value="fixed"' not in body
+    assert ">Donate now</a>" in body

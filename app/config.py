@@ -16,6 +16,11 @@ def _database_url() -> str:
     return url
 
 
+def _https_url(url: str) -> str:
+    url = url.strip()
+    return url if url.startswith("https://") else ""
+
+
 @dataclass(frozen=True)
 class Settings:
     database_url: str
@@ -36,6 +41,8 @@ class Settings:
     goal_per_km_cents: int
     # Path or URL of the owner's round photo on the page (OWNER_PHOTO); empty shows none.
     owner_photo: str = ""
+    # The charity's fundraising page (ACTION_PAGE_URL), used until one is set in the admin.
+    action_page_url: str = ""
 
 
 def load_settings() -> Settings:
@@ -58,4 +65,5 @@ def load_settings() -> Settings:
         challenge_days=int(os.environ.get("CHALLENGE_DAYS", "25")),
         goal_per_km_cents=parse_euro_cents(os.environ.get("GOAL_PER_KM", "")) or 0,
         owner_photo=os.environ.get("OWNER_PHOTO", "/static/img/owner.webp"),
+        action_page_url=_https_url(os.environ.get("ACTION_PAGE_URL", "")),
     )
