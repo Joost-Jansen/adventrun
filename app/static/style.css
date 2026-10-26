@@ -115,17 +115,17 @@ a { color: inherit; }
 @media (max-width: 719px) { .card-bottom .button { width: 100%; } }
 .status { margin: 0; font-weight: 500; }
 
-/* the doors: each as wide as its day's km, five rows of five */
+/* the doors: a classic advent calendar, five rows of five */
 .doors { display: grid; gap: 6px; }
 .door-row { display: flex; gap: 6px; }
 .door {
-  position: relative; display: block; min-width: 0; height: clamp(2.4rem, 5vh, 3.4rem); perspective: 600px;
+  position: relative; display: block; flex: 1; min-width: 0; height: clamp(2.4rem, 5vh, 3.4rem); perspective: 600px;
   background: var(--ink); color: var(--gold); font-size: var(--step-small); font-weight: 600; font-variant-numeric: tabular-nums;
   cursor: pointer; outline-offset: 2px;
 }
 .door-inside { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.45rem; white-space: nowrap; overflow: hidden; }
 .door-front {
-  position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 0.3rem 0.4rem;
+  position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 0.3rem 0.5rem; font-size: var(--step-body);
   background: var(--bg); color: var(--muted); transform-origin: left center; backface-visibility: hidden;
   transition: transform 420ms var(--ease-out), background-color var(--t-hover) ease;
 }
@@ -142,11 +142,6 @@ a { color: inherit; }
 }
 .door-detail { margin: 0; min-height: 3em; font-size: var(--step-small); color: var(--muted); }
 .h1 { height: 4%; } .h2 { height: 8%; } .h3 { height: 12%; } .h4 { height: 16%; } .h5 { height: 20%; } .h6 { height: 24%; } .h7 { height: 28%; } .h8 { height: 32%; } .h9 { height: 36%; } .h10 { height: 40%; } .h11 { height: 44%; } .h12 { height: 48%; } .h13 { height: 52%; } .h14 { height: 56%; } .h15 { height: 60%; } .h16 { height: 64%; } .h17 { height: 68%; } .h18 { height: 72%; } .h19 { height: 76%; } .h20 { height: 80%; } .h21 { height: 84%; } .h22 { height: 88%; } .h23 { height: 92%; } .h24 { height: 96%; } .h25 { height: 100%; }
-.d1 { flex: 1; } .d2 { flex: 2; } .d3 { flex: 3; } .d4 { flex: 4; } .d5 { flex: 5; }
-.d6 { flex: 6; } .d7 { flex: 7; } .d8 { flex: 8; } .d9 { flex: 9; } .d10 { flex: 10; }
-.d11 { flex: 11; } .d12 { flex: 12; } .d13 { flex: 13; } .d14 { flex: 14; } .d15 { flex: 15; }
-.d16 { flex: 16; } .d17 { flex: 17; } .d18 { flex: 18; } .d19 { flex: 19; } .d20 { flex: 20; }
-.d21 { flex: 21; } .d22 { flex: 22; } .d23 { flex: 23; } .d24 { flex: 24; } .d25 { flex: 25; }
 
 /* the receipt, with a zigzag tear at the bottom */
 .slip { position: relative; display: flex; flex-direction: column; background: var(--paper); color: var(--ink); padding: clamp(1.25rem, 2.4vw, 1.9rem) clamp(1.25rem, 2.2vw, 1.6rem) 1.6rem; margin-bottom: 12px; }
