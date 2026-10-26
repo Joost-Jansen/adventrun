@@ -223,7 +223,7 @@ a { color: inherit; }
 .avatar { position: relative; flex: none; width: 5.5rem; height: 5.5rem; }
 .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--snow); }
 /* the hat sits over the photo and pokes out of the circle */
-.santa-hat { position: absolute; left: 0; top: -2%; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.santa-hat { position: absolute; left: 10%; top: 3%; width: 80%; height: 80%; overflow: visible; pointer-events: none; }
 .hat-red { fill: #c62f27; }
 .hat-fold { fill: #9b211b; }
 .hat-fur { fill: var(--snow); stroke: #d4ddd8; stroke-width: 1; }
