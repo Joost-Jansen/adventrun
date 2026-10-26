@@ -226,7 +226,7 @@ Eigen repo (`adventrun`), los van `trackerai-app`. Hosting op Railway (één ser
 |---|---|---|
 | 1 | Publieke pagina (voortgang, toegezegd vs. gedoneerd, formulier, bevestiging, muur van steun, privacy), rekenregels met tests, beveiliging (CSP en headers, origin-check, rate limit, honeypot), Dockerfile + `railway.json` | gebouwd |
 | 2 | Admin (wachtwoord uit `ADMIN_PASSWORD`): toezeggingen met contact, status en notitie, km per dag, gedoneerd totaal en actiepagina-link, CSV met persoonlijke berichttekst, verwijderen per persoon en alles | gebouwd |
-| 3 | Live op Railway: project aanmaken, Postgres koppelen, variabelen zetten, testen op mobiel | te doen (Joost: Railway koppelen) |
+| 3 | Live op Railway: project `adventrun` (los van `trackerai`), service `web` + `Postgres`, regio Amsterdam (ams). Adres: https://web-production-cd3ca.up.railway.app | live (26 okt) |
 | 4 | Eigen domein (`adventrun.trackerai.nl` of ander): CNAME naar Railway, `PUBLIC_ORIGINS` bijwerken; DNS van trackerai.nl niet verstoren | later |
 | 5 | Km automatisch uit de tracker via read-only endpoint (alleen datum en km, met token) | later (zie 9.4) |
 | 6 | Optioneel: e-mail via Resend/Postmark (max. 1-2 per persoon, afmeldlink); 31 jan 2027 alles verwijderen | later |
@@ -276,3 +276,4 @@ Context: de MCP-tools van de tracker kunnen nu alleen het **actieve** plan tonen
 
 - 2026-10-25: brief aangemaakt. Schema (plan id 2) in tracker, herinnering 1 dec gezet, schoenindeling berekend, berichten opgesteld.
 - 2026-10-26: eigen repo `adventrun` gekozen (los van trackerai-app), hosting op Railway, url later. Fase 1 (publieke site) en fase 2 (admin, CSV, verwijderen) gebouwd met tests (SQLite en Postgres).
+- 2026-10-26: fase 3 live op Railway (project `adventrun`, regio Amsterdam): https://web-production-cd3ca.up.railway.app. Rooktest live geslaagd (toezegging, admin, CSV, verwijderen; testdata gewist). Admin-wachtwoord nog door Joost te vervangen.

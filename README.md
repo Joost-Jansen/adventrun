@@ -18,7 +18,8 @@ Open http://localhost:8000 and http://localhost:8000/admin.
 
 1. New project, then **Deploy from GitHub repo**, and pick this repository. Railway reads `railway.json` and builds the
    `Dockerfile`; the healthcheck is `/health`.
-2. Add a **PostgreSQL** database to the project. In the service variables, set `DATABASE_URL` to `${{Postgres.DATABASE_URL}}`.
+2. Add a **PostgreSQL** database to the project and wait until it is running. Then, in the web service variables, set
+   `DATABASE_URL` to `${{Postgres.DATABASE_URL}}` (a reference set before the Postgres service exists stays empty).
 3. Set the other variables:
 
    | Variable | Value |
@@ -30,7 +31,7 @@ Open http://localhost:8000 and http://localhost:8000/admin.
    | `PUBLIC_ORIGINS` | `https://<service>.up.railway.app` (later also the custom domain, comma-separated) |
    | `OWNER_NAME`, `CHARITY_NAME` | optional, default `Joost` and `het Rode Kruis` |
 
-4. **Settings, Networking, Generate Domain** gives a `*.up.railway.app` address. A custom domain is added later
+4. Pick an EU region (e.g. Amsterdam) for both services. **Settings, Networking, Generate Domain** gives a `*.up.railway.app` address. A custom domain is added later
    (phase 4): add it in Railway and create the CNAME it shows at the DNS provider.
 
 Keep one replica: the rate limits live in memory.
