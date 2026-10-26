@@ -1,3 +1,5 @@
+import re
+
 from sqlalchemy import select
 
 from app.db import Pledge
@@ -100,10 +102,25 @@ def test_rate_limit(client):
 
 
 def test_headline_pledged_is_full_distance_before_the_end(client):
-    """€1 per km at 0 km: the big number is €325 (all 325 km), with €0 so far underneath."""
+    """€1 per km at 0 km: the big number is €325 (all 325 km), with €0 so far."""
     post(client, per_km_amount="1")
     body = client.get("/").text
-    assert '<p class="value">€ 325</p>' in body
-    assert "Tot nu toe: € 0 bij 0 km" in body
+    assert '<p class="value value-xl">€\u00a0325</p>' in body
+    assert "als ik alle 25 dagen (325 km) haal" in body
+    assert "€\u00a00 van €\u00a0325 al binnengelopen" in body
     en = client.get("/en").text
-    assert '<p class="value">€325</p>' in en and "So far: €0 at 0 km" in en
+    assert '<p class="value value-xl">€325</p>' in en and "€0 of €325 run in so far" in en
+
+
+def test_scenarios(client):
+    post(client, display_name="A", per_km_amount="1", max_amount="100")  # 210 km -> capped at 100
+    post(client, display_name="B", per_km_amount="0,10")  # 210 km -> 21, 325 km -> 32,50
+    post(client, display_name="C", type="fixed", fixed_amount="25")
+    body = client.get("/").text
+    rows = re.findall(r'<th scope="row">(.*?)<span>(.*?)</span></th>\s*<td>(.*?)</td>', body)
+    assert rows == [
+        ("Tot nu toe", "0 km", "€\u00a025"),
+        ("Bij 20 van de 25 dagen", "210 km", "€\u00a0146"),
+        ("Bij alle 25 dagen", "325 km", "€\u00a0157,50"),
+    ]
+    assert "3 toezeggingen: 2 per km, 1 vast bedrag." in body

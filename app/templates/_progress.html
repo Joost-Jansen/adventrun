@@ -31,16 +31,21 @@
     <p><strong>{{ fmt_km(km_walked) }}</strong> / {{ planned_km }} km</p>
   </div>
 
-  <div class="numbers">
-    <div class="number">
-      <p class="label">{{ t('pledged_label') }}</p>
+</section>
+
+<section class="card" aria-labelledby="toegezegd">
+  <h2 id="toegezegd">{{ t('pledged_title') }}</h2>
+  <div class="pledged-grid">
+    <div class="pledged-main">
       {% if day > days %}
-      <p class="value">{{ fmt(pledged_now) }}</p>
-      <p class="hint">{{ t('pledged_final_hint', km=fmt_km(km_walked)) }}</p>
+        <p class="value value-xl">{{ fmt(pledged_now) }}</p>
+        <p class="hint">{{ t('pledged_final_hint', km=fmt_km(km_walked)) }}</p>
       {% else %}
-      <p class="value">{{ fmt(pledged_potential) }}</p>
-      <p class="hint">{{ t('pledged_full_hint', total=planned_km) }}</p>
-      <p class="so-far">{{ t('pledged_so_far', now=fmt(pledged_now), km=fmt_km(km_walked)) }}</p>
+        <p class="value value-xl">{{ fmt(pledged_potential) }}</p>
+        <p class="headline-hint">{{ t('pledged_headline_hint', days=days, km=planned_km) }}</p>
+        <progress class="pledged-bar" max="{{ [pledged_potential, 1]|max }}" value="{{ pledged_now }}"
+          aria-label="{{ t('pledged_bar_label', now=fmt(pledged_now), total=fmt(pledged_potential)) }}"></progress>
+        <p class="hint">{{ t('pledged_bar_label', now=fmt(pledged_now), total=fmt(pledged_potential)) }}</p>
       {% endif %}
     </div>
     <div class="number number-donated">
@@ -49,5 +54,23 @@
       <p class="hint">{{ t('donated_hint') }}</p>
     </div>
   </div>
-  <p class="hint">{{ t('promise_note') }}</p>
+
+  {% if day <= days %}
+  <table class="scenarios">
+    <tbody>
+      <tr>
+        <th scope="row">{{ t('scenario_so_far') }}<span>{{ fmt_km(km_walked) }} km</span></th>
+        <td>{{ fmt(pledged_now) }}</td>
+      </tr>
+      {% for sc in scenarios %}
+      <tr class="{% if loop.last %}is-total{% endif %}">
+        <th scope="row">{% if loop.last %}{{ t('scenario_all', total=days) }}{% else %}{{ t('scenario_days', days=sc.days, total=days) }}{% endif %}<span>{{ sc.km }} km</span></th>
+        <td>{{ fmt(sc.cents) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  {% if supporters %}<p class="hint">{{ t('pledged_mix', n=supporters, per_km=count_per_km, fixed=count_fixed) }}</p>{% endif %}
+  <p class="hint">{{ t('pledged_how') }} {{ t('promise_note') }}</p>
 </section>
