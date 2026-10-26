@@ -124,8 +124,14 @@ a { color: inherit; }
   cursor: pointer; outline-offset: 2px;
 }
 .door-inside { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.4rem; white-space: nowrap; overflow: hidden; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-.door-num { font-size: var(--step-lead); font-weight: 600; letter-spacing: -0.02em; }
-.door-units { display: grid; font-size: var(--step-small); font-weight: 500; line-height: 1.05; }
+.door-num { font-size: calc(var(--step-small) * 2.45); font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.door-units { display: grid; font-size: var(--step-small); font-weight: 500; line-height: 1; }
+@media (max-width: 559px) {
+  /* a phone door is about 60px wide: the number on top, "dec km" on one line under it */
+  .door-front { flex-direction: column; align-items: flex-start; justify-content: center; gap: 0.15rem; padding: 0 0.35rem; }
+  .door-num { font-size: calc(var(--step-small) * 1.9); }
+  .door-units { display: flex; gap: 0.25em; }
+}
 .door-front {
   position: absolute; inset: 0; display: flex; align-items: center; gap: 0.3rem; padding: 0 0.5rem; line-height: 1;
   background: var(--bg); color: var(--muted); transform-origin: left center; backface-visibility: hidden;
