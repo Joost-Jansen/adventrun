@@ -149,6 +149,10 @@ a { color: inherit; }
 .dots { flex: 1; border-bottom: 4px dotted var(--muted); transform: translateY(-0.25em); min-width: 1rem; }
 .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .slip-total { display: flex; justify-content: space-between; margin: 0.6rem -0.6rem 0; padding: 0.5rem 0.6rem; background: var(--ink); color: var(--gold); font-weight: 600; max-width: none; }
+.slip-stats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.6rem; margin: 1rem 0 1.4rem; }
+.slip-stats p { margin: 0; background: var(--bg); padding: 0.8rem 0.9rem; display: grid; align-content: start; }
+.stat-num { font-size: clamp(1.75rem, 0.9rem + 2.2vw, 3.25rem); font-weight: 600; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stat-label { font-size: var(--step-small); margin-top: 0.35rem; }
 .slip-donate { margin-top: auto; margin-bottom: 0; padding-top: 1.1rem; border-top: 5px dotted var(--muted); display: grid; gap: 0.7rem; }
 .slip-donate p { margin: 0; }
 .button-block { width: 100%; }

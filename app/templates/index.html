@@ -54,6 +54,10 @@
         <li><span>{{ t('receipt_group_fixed') }}</span><span class="dots" aria-hidden="true"></span><span class="num">{{ fmt(fixed_total) }}</span></li>
       </ul>
       <p class="slip-total"><span>{{ t('receipt_total') }}</span><span class="num">{{ fmt(pledged_potential) }}</span></p>
+      <div class="slip-stats">
+        <p><span class="stat-num">{{ fmt(avg_per_km) }}</span><span class="stat-label">{{ t('stat_avg_label') }}</span></p>
+        <p><span class="stat-num">{{ supporters }}</span><span class="stat-label">{{ t('stat_pledges_label') }}</span></p>
+      </div>
       {% else %}
       <p class="slip-note">{{ t('receipt_none') }}</p>
       {% endif %}

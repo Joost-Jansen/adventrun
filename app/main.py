@@ -157,6 +157,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "fixed_total": sum(p.amount_cents for p in pledges if p.type == "fixed"),
             "pledged_now": now_cents,
             "pledged_potential": potential_cents,
+            # What one km is worth on average: the whole pledged total spread over the km it is pledged for.
+            "avg_per_km": round(now_cents / float(km_walked)) if day > settings.challenge_days and km_walked else round(potential_cents / planned),
             "supporters": len(pledges),
             "wall": [p.display_name for p in pledges if p.show_name and p.display_name],
             "anonymous": sum(1 for p in pledges if not (p.show_name and p.display_name)),

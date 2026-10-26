@@ -126,3 +126,12 @@ def test_receipt_rows_add_up_to_the_total(client):
     ]
     assert '<span>Samen</span><span class="num">€\u00a0157,50</span>' in body  # 30,80 + 79,70 + 12,60 + 9,40 + 25
     assert 'Muur van steun <span class="count">3</span>' in body
+
+
+def test_average_per_km(client):
+    post(client, display_name="A", per_km_amount="1")  # 325 at full distance
+    post(client, display_name="B", type="fixed", fixed_amount="65")  # 65
+    body = client.get("/").text
+    assert '<span class="stat-num">€\u00a01,20</span><span class="stat-label">gemiddeld per km</span>' in body  # 390 / 325
+    assert '<span class="stat-num">2</span><span class="stat-label">toezeggingen</span>' in body
+    assert "per km on average" in client.get("/en").text
