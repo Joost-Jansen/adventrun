@@ -107,9 +107,9 @@ def test_headline_pledged_is_full_distance_before_the_end(client):
     post(client, per_km_amount="1")
     body = client.get("/").text
     assert 'aria-describedby="receipt-note">€\u00a0325</p>' in body
-    assert "Tot nu toe €\u00a00 bij 0 km" in body
+    assert "<dt>tot nu toe, 0 km</dt><dd>€\u00a00</dd>" in body
     en = client.get("/en").text
-    assert 'aria-describedby="receipt-note">€325</p>' in en and "So far €0 at 0 km" in en
+    assert 'aria-describedby="receipt-note">€325</p>' in en and "<dt>so far, 0 km</dt><dd>€0</dd>" in en
 
 
 def test_receipt_rows_add_up_to_the_total(client):
@@ -133,8 +133,8 @@ def test_average_per_km(client):
     post(client, display_name="A", per_km_amount="1")  # 325 at full distance
     post(client, display_name="B", type="fixed", fixed_amount="65")  # 65
     body = client.get("/").text
-    assert '<span class="stat-num">€\u00a01,20</span><span class="stat-label">gemiddeld per km</span>' in body  # 390 / 325
-    assert '<span class="stat-num">2</span><span class="stat-label">toezeggingen</span>' in body
+    assert "<dt>gemiddeld per km</dt><dd>€\u00a01,20</dd>" in body  # 390 / 325
+    assert "<dt>toezeggingen</dt><dd>2</dd>" in body
     assert "per km on average" in client.get("/en").text
 
 

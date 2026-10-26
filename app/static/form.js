@@ -32,7 +32,7 @@
         if (fixed) text = fill(form.dataset.tplFixed, { km, total: money.format(fixed), per_km: money.format(fixed / km) });
       }
       summary.textContent = text;
-      summary.hidden = false;
+      summary.hidden = text === form.dataset.tplEmpty;
       form.querySelectorAll(".chip").forEach((chip) => {
         const input = form.elements[chip.dataset.fill];
         chip.setAttribute("aria-pressed", String(parse(input.value) === parse(chip.dataset.value)));

@@ -1,118 +1,79 @@
 {% extends "base.html" %}
 {% block body_class %}page-home{% endblock %}
-{% block header %}{% endblock %}
+{% block header %}
+<header class="topbar">
+  <div class="frame topbar-inner">
+    <a class="wordmark" href="{{ paths.home }}">{{ t('brand') }}</a>
+    <nav class="topnav" aria-label="{{ t('brand') }}">
+      <a class="link" href="{{ other_lang_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t('lang_other') }}</a>
+      <a class="link" href="{{ action_page_url or '#doneren' }}"{% if action_page_url %} rel="noopener" target="_blank"{% endif %}>{{ t('nav_donate') }}</a>
+    </nav>
+  </div>
+</header>
+{% endblock %}
 {% block content %}
+{% set noted = [1, 15, 19, 21, 25] %}
 
-{# ---- First screen: the advent calendar card and its receipt, over a winter painting ---- #}
-<section class="hero" aria-labelledby="hero-title">
-  <img class="hero-photo" src="/static/img/avercamp-winter-landscape.jpg" width="1500" height="918" alt="" fetchpriority="high">
-  <div class="frame hero-grid">
-    <article class="card calendar-card">
-      <div class="card-top">
-        <h1 id="hero-title" class="display" data-load>{{ t('hero_title') }}</h1>
-        <a class="link lang-link" href="{{ other_lang_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t('lang_other') }}</a>
-      </div>
-      <p class="lead" data-load>{{ t('hero_lead') }}</p>
+{# ---- The stage: tally, advent calendar, pledge form, in one view on a computer ---- #}
+<section class="stage" aria-labelledby="hero-title">
+  <div class="frame stage-grid">
 
-      {% set noted = [1, 15, 19, 21, 25] %}
-      <div class="doors" role="list" aria-label="{{ t('calendar_label') }}">
-        {% for row in calendar_rows %}
-        <div class="door-row" role="presentation">
-          {% for tile in row %}
-          {% set dv = day_values[tile.day - 1] %}
-          {% set head = fmt_date(tile.date) ~ ' · ' ~ tile.day ~ ' km' ~ ((' · ' ~ t('note_' ~ tile.day)) if tile.day in noted else '') %}
-          {% set a, k, c = fmt(dv[1]), dv[0] ~ ' km', fmt(dv[2] + fixed_total) %}
-          <span role="listitem" tabindex="0" class="door d{{ tile.day }} col{{ loop.index }} row{{ (tile.day - 1) // 5 + 1 }} door-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}{% if tile.day in noted %} is-noted{% endif %}"
-            aria-label="{{ head }}; {{ a }} {{ t('panel_day') }}; {{ k }} {{ t('panel_cum_km') }}; {{ c }} {{ t('panel_cum_amount') }}{% if tile.state == 'done' %}; {{ t('tile_done') }}{% elif tile.state == 'partial' %}; {{ t('tile_partial') }}{% elif tile.is_today %}; {{ t('tile_today') }}{% endif %}"><span class="door-inside" aria-hidden="true">{{ a }}</span><span class="door-front" aria-hidden="true"><span class="door-num">{{ tile.day }}</span><span class="door-units"><span>{{ month_short }}</span><span>km</span></span></span><span class="door-pop" aria-hidden="true"><span class="pop-head">{{ head }}</span><span class="pop-stats"><span class="pop-stat"><span class="pop-num">{{ a }}</span><span class="pop-label">{{ t('panel_day') }}</span></span><span class="pop-stat"><span class="pop-num">{{ k }}</span><span class="pop-label">{{ t('panel_cum_km') }}</span></span><span class="pop-stat"><span class="pop-num">{{ c }}</span><span class="pop-label">{{ t('panel_cum_amount') }}</span></span></span></span></span>
+    {# the advent calendar: each door a race bib #}
+    <div class="calendar">
+      <h1 id="hero-title" class="display">{{ t('hero_title') }}</h1>
+      <p class="hero-sub">{{ t('hero_sub') }}</p>
+      <div class="board">
+        <svg class="snowcap" viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 24 V11 C14 2 34 1 52 7 C70 13 92 3 120 5 C148 7 166 13 190 8 C214 3 236 1 262 6 C288 11 312 12 334 6 C352 1 376 2 390 7 C396 9 400 11 400 13 V24 Z"/></svg>
+        <div class="doors" role="list" aria-label="{{ t('calendar_label') }}">
+          {% for row in calendar_rows %}
+          <div class="door-row" role="presentation">
+            {% for tile in row %}
+            {% set dv = day_values[tile.day - 1] %}
+            {% set head = fmt_date(tile.date) ~ ' · ' ~ tile.day ~ ' km' ~ ((' · ' ~ t('note_' ~ tile.day)) if tile.day in noted else '') %}
+            {% set a, k, c = fmt(dv[1]), dv[0] ~ ' km', fmt(dv[2] + fixed_total) %}
+            <span role="listitem" tabindex="0" class="door d{{ tile.day }} col{{ loop.index }} row{{ (tile.day - 1) // 5 + 1 }} door-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}{% if tile.day in noted %} is-noted{% endif %}"
+              aria-label="{{ head }}; {{ a }} {{ t('panel_day') }}; {{ k }} {{ t('panel_cum_km') }}; {{ c }} {{ t('panel_cum_amount') }}{% if tile.state == 'done' %}; {{ t('tile_done') }}{% elif tile.state == 'partial' %}; {{ t('tile_partial') }}{% elif tile.is_today %}; {{ t('tile_today') }}{% endif %}"><span class="door-inside" aria-hidden="true">{{ a }}</span><span class="door-front" aria-hidden="true"><span class="door-num">{{ tile.day }}</span><span class="door-units"><span>{{ month_short }}</span><span>km</span></span></span><span class="door-pop" aria-hidden="true"><span class="pop-head">{{ head }}</span><span class="pop-stats"><span class="pop-stat"><span class="pop-num">{{ a }}</span><span class="pop-label">{{ t('panel_day') }}</span></span><span class="pop-stat"><span class="pop-num">{{ k }}</span><span class="pop-label">{{ t('panel_cum_km') }}</span></span><span class="pop-stat"><span class="pop-num">{{ c }}</span><span class="pop-label">{{ t('panel_cum_amount') }}</span></span></span></span></span>
+            {% endfor %}
+          </div>
           {% endfor %}
         </div>
-        {% endfor %}
       </div>
       <p class="status">
-        {% if day == 0 %}{{ t('before_start', date=start_text) }}{% elif day > days %}{{ t('finished') }}{% else %}{{ t('day_of', day=day, days=days) }}{% endif %}
-        · {{ t('km_line', walked=fmt_km(km_walked), total=planned_km) }}
+        {% if day == 0 %}{{ t('before_start', date=start_text) }}{% elif day > days %}{{ t('finished') }}{% else %}{{ t('day_of', day=day, days=days) }}{% endif %},
+        {{ t('km_line', walked=fmt_km(km_walked), total=planned_km) }}
       </p>
+    </div>
 
-      <div class="card-bottom">
-        <a class="button" href="#toezeggen" data-load>{{ t('hero_cta') }}</a>
-        <p class="credit">{{ t('hero_credit') }}</p>
-      </div>
-    </article>
-
-    {# the receipt: what has been pledged, adding up to the total #}
-    <aside class="slip" id="toegezegd" aria-labelledby="receipt-title" data-load>
-      <h2 id="receipt-title" class="visually-hidden">{{ t('receipt_title') }}</h2>
-      <p class="total display" aria-describedby="receipt-note">{{ fmt(pledged_now if day > days else pledged_potential) }}</p>
-      <p class="slip-note slip-lead" id="receipt-note">{% if day > days %}{{ t('receipt_final_note', km=fmt_km(km_walked)) }}{% else %}{{ t('receipt_note_short', km=planned_km) }}{% endif %}</p>
+    {# the tally: total, per km, goal, donated #}
+    <aside class="tally" id="toegezegd" aria-labelledby="tally-title">
+      <h2 id="tally-title" class="tally-title">{{ t('tally_title') }}</h2>
+      <p class="total" aria-describedby="receipt-note">{{ fmt(pledged_now if day > days else pledged_potential) }}</p>
+      <p class="tally-note" id="receipt-note">{% if day > days %}{{ t('receipt_final_note', km=fmt_km(km_walked)) }}{% else %}{{ t('tally_total_note', km=planned_km) }}{% endif %}</p>
       {% if goal_cents %}
       <div class="goal" role="img" aria-label="{{ t('goal_line', goal=fmt(goal_cents), per_km=fmt(goal_per_km)) }}; {{ t('goal_legend_now') }} {{ fmt(pledged_now) }}; {{ t('goal_legend_full') }} {{ fmt(pledged_potential) }}; {{ t('goal_legend_rest') }} {{ fmt(goal_left) }}">
-        <p class="goal-line">{{ t('goal_line', goal=fmt(goal_cents), per_km=fmt(goal_per_km)) }}</p>
         <svg class="goal-bar" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><rect class="gb-track" width="1000" height="14"/><rect class="gb-full" width="{{ goal_bar[1] }}" height="14"/><rect class="gb-now" width="{{ goal_bar[0] }}" height="14"/></svg>
-        <p class="goal-legend" aria-hidden="true">
-          <span><span class="key key-now"></span>{{ t('goal_legend_now') }} {{ fmt(pledged_now) }} ({{ fmt_km(km_walked) }} km)</span>
-          <span><span class="key key-full"></span>{{ t('goal_legend_full') }} {{ fmt(pledged_potential) }}</span>
-          {% if goal_left %}<span><span class="key key-rest"></span>{{ t('goal_legend_rest') }} {{ fmt(goal_left) }}</span>{% endif %}
-        </p>
-        <p class="goal-pct">{{ t('goal_reached' if not goal_left else 'goal_pct', pct=goal_pct) }}</p>
+        <p class="goal-pct"><strong>{{ t('goal_reached' if not goal_left else 'goal_pct', pct=goal_pct) }}</strong><br>{{ t('goal_line', goal=fmt(goal_cents), per_km=fmt(goal_per_km)) }}</p>
       </div>
-      {% elif day <= days %}
-      <progress class="meter" max="{{ [pledged_potential, 1]|max }}" value="{{ pledged_now }}" aria-label="{{ t('receipt_bar_label', now=fmt(pledged_now), total=fmt(pledged_potential)) }}"></progress>
-      <p class="slip-note">{{ t('receipt_caption', now=fmt(pledged_now), km=fmt_km(km_walked)) }}</p>
       {% endif %}
-
-      {% if supporters %}
-      <p class="slip-note slip-rows-title">{{ t('receipt_rows_title') }}</p>
-      <ul class="slip-rows">
-        {% for p in periods %}
-        <li><span>{{ t('receipt_row_period', dates=p.dates, km=p.km) }}</span><span class="dots" aria-hidden="true"></span><span class="num">{{ fmt(p.cents) }}</span></li>
-        {% endfor %}
-        <li><span>{{ t('receipt_group_fixed') }}</span><span class="dots" aria-hidden="true"></span><span class="num">{{ fmt(fixed_total) }}</span></li>
-      </ul>
-      <p class="slip-total"><span>{{ t('receipt_total') }}</span><span class="num">{{ fmt(pledged_potential) }}</span></p>
-      <div class="slip-stats">
-        <p><span class="stat-num">{{ fmt(avg_per_km) }}</span><span class="stat-label">{{ t('stat_avg_label') }}</span></p>
-        <p><span class="stat-num">{{ supporters }}</span><span class="stat-label">{{ t('stat_pledges_label') }}</span></p>
-      </div>
-      {% else %}
-      <p class="slip-note">{{ t('receipt_none') }}</p>
-      {% endif %}
-
-      <div class="slip-donate" id="doneren">
-        <p><strong>{{ t('receipt_donated', amount=fmt(donated_cents)) }}</strong></p>
+      <dl class="facts">
+        <div><dt>{{ t('stat_avg_label') }}</dt><dd>{{ fmt(avg_per_km) }}</dd></div>
+        <div><dt>{{ t('goal_legend_now') }}, {{ fmt_km(km_walked) }} km</dt><dd>{{ fmt(pledged_now) }}</dd></div>
+        <div><dt>{{ t('stat_pledges_label') }}</dt><dd>{{ supporters }}</dd></div>
+        <div><dt>{{ t('tally_donated') }}</dt><dd>{{ fmt(donated_cents) }}</dd></div>
+      </dl>
+      <div class="donate" id="doneren">
         {% if action_page_url %}
-          <a class="button button-block" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('strip_button') }}</a>
+          <a class="button button-snow" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('strip_button') }}</a>
         {% else %}
           <p class="soon">{{ t('donate_soon') }}</p>
         {% endif %}
       </div>
+      <p class="tally-links"><a class="link" href="#opbouw">{{ t('build_title') }}</a><br><a class="link" href="#muur">{{ t('wall_more') }}</a></p>
     </aside>
-  </div>
-</section>
 
-{# ---- The reply card: the pledge form, with the wall of support beside it ---- #}
-<section class="section reply-section" id="toezeggen" aria-labelledby="form-title">
-  <div class="frame reply-grid">
-    <div class="reply-aside">
-      <div class="why" data-reveal>
-        <h2 class="lead-head">{{ t('why_title') }}</h2>
-        <p>{{ t('why_p1') }}</p>
-        <p>{{ t('why_p2') }}</p>
-        <p>{{ t('why_p3') }}</p>
-      </div>
-      <p data-reveal>{{ t('reply_aside') }}</p>
-      <div class="guest-card" id="muur" data-reveal>
-        <h2 class="lead-head">{{ t('wall_title') }} <span class="count">{{ supporters }}</span></h2>
-        {% if supporters == 0 %}
-          <p class="guest-names">{{ t('wall_empty') }}</p>
-        {% else %}
-          <p class="guest-names">{% for name in wall %}<span class="guest">{{ name }}</span>{% if not loop.last %}&nbsp;· {% endif %}{% endfor %}{% if anonymous %}{% if wall %}&nbsp;· {% endif %}<span class="guest">{{ t('wall_anon', n=anonymous) }}</span>{% endif %}</p>
-          <p class="hint">{{ t('wall_note') }}</p>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="reply-card card" data-reveal>
-      <h2 id="form-title" class="lead-head">{{ t('form_title') }}</h2>
+    {# the pledge form #}
+    <div class="pledge-panel" id="toezeggen">
+      <h2 id="form-title" class="pledge-title">{{ t('form_title') }}</h2>
 
       {% if errors %}
       <div class="errors" role="alert"><p><strong>{{ t('errors_title') }}</strong> {{ t('errors_body') }}</p></div>
@@ -145,7 +106,7 @@
           <legend class="visually-hidden">{{ t('step_amount') }}</legend>
           <div class="group" data-for="per_km">
             <div class="field {% if errors.per_km_amount %}invalid{% endif %}">
-              <p class="field-label" id="perkm-label">{{ t('per_km_label') }}</p>
+              <p class="field-label visually-hidden" id="perkm-label">{{ t('per_km_label') }}</p>
               <div class="chips" role="group" aria-labelledby="perkm-label">
                 {% for c in per_km_choices %}
                 <button type="button" class="chip" data-fill="per_km_amount" data-value="{{ c.value }}" aria-pressed="false">
@@ -155,12 +116,11 @@
               </div>
               <div class="money-row">
                 <div class="money-field">
-                  <label for="per_km_amount" class="sub-label">{{ t('other_amount') }}</label>
+                  <label for="per_km_amount" class="sub-label">{{ t('per_km_label') }}</label>
                   <div class="money">
                     <span aria-hidden="true">€</span>
                     <input id="per_km_amount" name="per_km_amount" inputmode="decimal" autocomplete="off" placeholder="{{ per_km_choices[1].value }}" value="{{ form.per_km_amount or '' }}"
                       {% if errors.per_km_amount %}aria-invalid="true" aria-describedby="err-perkm"{% endif %}>
-                    <span class="unit">/ km</span>
                   </div>
                 </div>
                 <div class="money-field {% if errors.max_amount %}invalid{% endif %}">
@@ -172,7 +132,7 @@
                   </div>
                 </div>
               </div>
-              <p class="hint" id="hint-max">{{ t('max_hint') }}</p>
+              <p class="visually-hidden" id="hint-max">{{ t('max_hint') }}</p>
               {% if errors.per_km_amount %}<p class="error" id="err-perkm">{{ errors.per_km_amount }}</p>{% endif %}
               {% if errors.max_amount %}<p class="error" id="err-max">{{ errors.max_amount }}</p>{% endif %}
             </div>
@@ -180,7 +140,7 @@
 
           <div class="group" data-for="fixed">
             <div class="field {% if errors.fixed_amount %}invalid{% endif %}">
-              <p class="field-label" id="fixed-label">{{ t('fixed_label') }}</p>
+              <p class="field-label visually-hidden" id="fixed-label">{{ t('fixed_label') }}</p>
               <div class="chips" role="group" aria-labelledby="fixed-label">
                 {% for c in fixed_choices %}
                 <button type="button" class="chip" data-fill="fixed_amount" data-value="{{ c.value }}" aria-pressed="false">
@@ -188,7 +148,7 @@
                 </button>
                 {% endfor %}
               </div>
-              <label for="fixed_amount" class="sub-label">{{ t('other_amount') }}</label>
+              <label for="fixed_amount" class="sub-label">{{ t('fixed_label') }}</label>
               <div class="money">
                 <span aria-hidden="true">€</span>
                 <input id="fixed_amount" name="fixed_amount" inputmode="decimal" autocomplete="off" placeholder="{{ fixed_choices[1].value }}" value="{{ form.fixed_amount or '' }}"
@@ -207,7 +167,7 @@
             <label for="display_name">{{ t('name_label') }}</label>
             <input id="display_name" name="display_name" maxlength="60" autocomplete="nickname" value="{{ form.display_name or '' }}"
               aria-describedby="hint-name{% if errors.display_name %} err-name{% endif %}" {% if errors.display_name %}aria-invalid="true"{% endif %}>
-            <p class="hint" id="hint-name">{{ t('name_hint') }}</p>
+            <p class="visually-hidden" id="hint-name">{{ t('name_hint') }}</p>
             {% if errors.display_name %}<p class="error" id="err-name">{{ errors.display_name }}</p>{% endif %}
             <label class="check"><input type="checkbox" name="anonymous" value="1" {% if form.anonymous %}checked{% endif %}>
               <span>{{ t('anonymous') }}</span></label>
@@ -220,12 +180,12 @@
             {% if errors.contact %}<p class="error" id="err-contact">{{ errors.contact }}</p>{% endif %}
             <label class="check"><input type="checkbox" name="consent" value="1" {% if form.consent %}checked{% endif %}>
               <span>{{ t('consent') }}</span></label>
-            <p class="hint" id="hint-contact">{{ t('contact_hint') }}</p>
+            <p class="visually-hidden" id="hint-contact">{{ t('contact_hint') }}</p>
           </div>
 
           <details class="field more" {% if form.message or errors.message %}open{% endif %}>
             <summary>{{ t('message_label') }}</summary>
-            <textarea id="message" name="message" maxlength="500" rows="3" aria-label="{{ t('message_label') }}" aria-describedby="hint-message">{{ form.message or '' }}</textarea>
+            <textarea id="message" name="message" maxlength="500" rows="2" aria-label="{{ t('message_label') }}" aria-describedby="hint-message">{{ form.message or '' }}</textarea>
             {% if errors.message %}<p class="error">{{ errors.message }}</p>{% endif %}
             <p class="hint" id="hint-message">{{ t('message_hint') }}</p>
           </details>
@@ -236,25 +196,39 @@
           </div>
         </fieldset>
 
-        <button type="submit" class="button button-bar">{{ t('submit') }}</button>
-        <p class="hint">{{ t('submit_note') }} <a class="link" href="{{ paths.privacy }}">{{ t('privacy_link') }}</a>.</p>
+        <button type="submit" class="button button-candle">{{ t('submit') }}</button>
+        <p class="hint">{{ t('submit_note') }} <a class="link" href="{{ paths.privacy }}">{{ t('privacy_link') }}</a></p>
       </form>
     </div>
   </div>
+  <svg class="drift" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 60 V34 C120 14 220 40 340 28 S560 6 700 22 S940 46 1080 26 S1320 8 1440 24 V60 Z"/></svg>
 </section>
 
-{# ---- How heavy it gets, and how the pledges grow towards the goal ---- #}
-<section class="section heavy-section" id="zwaarte" aria-labelledby="heavy-title">
-  <div class="frame">
-    <div class="heavy-head">
-      <h2 id="heavy-title" class="head" data-reveal>{{ t('heavy_title') }}</h2>
-      <p class="lead" data-reveal>{{ t('heavy_lead', n=heavy.last_days, km=heavy.last_km, avg=fmt_km(heavy.last_avg)) }}</p>
+{# ---- Underneath: how the amount builds up, and how heavy it gets ---- #}
+<section class="section build" id="opbouw" aria-labelledby="build-title">
+  <div class="frame build-grid">
+    <div class="receipt">
+      <h2 id="build-title" class="head">{{ t('build_title') }}</h2>
+      {% if supporters %}
+      <p class="muted">{{ t('receipt_rows_title') }}</p>
+      <ul class="slip-rows">
+        {% for p in periods %}
+        <li><span>{{ t('receipt_row_period', dates=p.dates, km=p.km) }}</span><span class="dots" aria-hidden="true"></span><span class="num">{{ fmt(p.cents) }}</span></li>
+        {% endfor %}
+        <li><span>{{ t('receipt_group_fixed') }}</span><span class="dots" aria-hidden="true"></span><span class="num">{{ fmt(fixed_total) }}</span></li>
+      </ul>
+      <p class="slip-total"><span>{{ t('receipt_total') }}</span><span class="num">{{ fmt(pledged_potential) }}</span></p>
+      {% else %}
+      <p class="muted">{{ t('receipt_none') }}</p>
+      {% endif %}
     </div>
-    <figure class="chart combo" data-reveal>
-      <h3 class="chart-title">{{ t('combo_title') }}</h3>
+
+    <figure class="chart combo" id="zwaarte" aria-labelledby="heavy-title">
+      <h2 id="heavy-title" class="head">{{ t('heavy_title') }}</h2>
+      <p class="muted">{{ t('heavy_lead', n=heavy.last_days, km=heavy.last_km, avg=fmt_km(heavy.last_avg)) }}</p>
       <p class="combo-legend" aria-hidden="true">
         <span><span class="key key-km"></span>{{ t('combo_km') }}</span>
-        <span><span class="key key-line"></span>{{ t('combo_money') }} · {{ t('combo_end', amount=fmt(money_days[-1].cents)) }}</span>
+        <span><span class="key key-line"></span>{{ t('combo_money') }}, {{ t('combo_end', amount=fmt(money_days[-1].cents)) }}</span>
       </p>
       <div class="chart-plot" aria-hidden="true" data-detail-target="chart-detail">
         <div class="chart-ref"><span>{{ t('combo_half', half=fmt_km(heavy.half)) }}</span></div>
@@ -271,16 +245,6 @@
       </div>
       <div class="chart-axis" aria-hidden="true"><span>{{ t('chart_first') }}</span><span>{{ t('chart_last') }}</span></div>
       <figcaption class="door-detail" id="chart-detail">{{ t('combo_hint') }}</figcaption>
-      <div class="chart-stats">
-        <p><span class="stat-num">{{ heavy.last_km }}</span><span class="stat-label">{{ t('heavy_stat_last', n=heavy.last_days) }}</span></p>
-        <p><span class="stat-num">{{ fmt_km(heavy.last_avg) }}</span><span class="stat-label">{{ t('heavy_stat_avg', half=fmt_km(heavy.half)) }}</span></p>
-        {% if goal_cents %}
-        <p><span class="stat-num">{{ fmt(goal_cents) }}</span><span class="stat-label">{{ t('money_stat_goal', per_km=fmt(goal_per_km)) }}</span></p>
-        <p><span class="stat-num">{{ fmt(goal_left) if goal_left else fmt(pledged_potential - goal_cents) }}</span><span class="stat-label">{{ t('money_stat_left') if goal_left else t('money_stat_over') }}</span></p>
-        {% else %}
-        <p><span class="stat-num">{{ fmt(pledged_potential) }}</span><span class="stat-label">{{ t('money_stat_pledged', km=planned_km) }}</span></p>
-        {% endif %}
-      </div>
       <div class="visually-hidden"><table>
         <caption>{{ t('combo_title') }}</caption>
         <thead><tr><th scope="col">{{ t('chart_th_day') }}</th><th scope="col">{{ t('chart_th_km') }}</th><th scope="col">{{ t('money_th_amount') }}</th></tr></thead>
@@ -290,11 +254,33 @@
   </div>
 </section>
 
+{# ---- Why, and who is in ---- #}
+<section class="section people" aria-labelledby="why-title">
+  <div class="frame people-grid">
+    <div class="why">
+      <h2 id="why-title" class="head">{{ t('why_title') }}</h2>
+      <p>{{ t('why_p1') }}</p>
+      <p>{{ t('why_p2') }}</p>
+      <p>{{ t('why_p3') }}</p>
+      <p class="muted">{{ t('reply_aside') }}</p>
+    </div>
+    <div class="wall" id="muur">
+      <h2 class="head">{{ t('wall_title') }} <span class="count">{{ supporters }}</span></h2>
+      {% if supporters == 0 %}
+        <p class="guest-names">{{ t('wall_empty') }}</p>
+      {% else %}
+        <ul class="guest-names">{% for name in wall %}<li>{{ name }}</li>{% endfor %}{% if anonymous %}<li class="anon">{{ t('wall_anon', n=anonymous) }}</li>{% endif %}</ul>
+        <p class="muted">{{ t('wall_note') }}</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
 {# ---- Answers as reading text ---- #}
 <section class="section faq-section" id="vragen" aria-labelledby="faq-title">
   <div class="frame faq-grid">
-    <h2 id="faq-title" class="head" data-reveal>{{ t('faq_title') }}</h2>
-    <div class="faq-text" data-reveal>
+    <h2 id="faq-title" class="head">{{ t('faq_title') }}</h2>
+    <div class="faq-text">
       {% for n in (1, 3, 4, 5, 7, 10) %}
       <p><strong>{{ t('faq_' ~ n ~ '_q') }}</strong> {{ t('faq_' ~ n ~ '_a') }}</p>
       {% endfor %}
@@ -304,28 +290,23 @@
 {% endblock %}
 
 {% block footer %}
-<footer class="postcard-wrap">
-  <div class="frame">
-    <div class="postcard">
-      <div class="postcard-left">
-        <h2 class="lead-head">{{ t('footer_signoff') }}</h2>
-        <p>{{ t('footer_message') }}</p>
-        <div class="share">
-          <input id="share-url" readonly value="{{ paths.home }}" aria-label="{{ t('share_copy') }}">
-          <button type="button" class="button" id="share-btn" data-copied="{{ t('share_copied') }}">{{ t('share_copy') }}</button>
-        </div>
+<footer class="site-footer">
+  <div class="frame footer-grid">
+    <div>
+      <p class="footer-signoff">{{ t('footer_signoff') }}</p>
+      <p>{{ t('footer_message') }}</p>
+      <div class="share">
+        <input id="share-url" readonly value="{{ paths.home }}" aria-label="{{ t('share_copy') }}">
+        <button type="button" class="button button-snow" id="share-btn" data-copied="{{ t('share_copied') }}">{{ t('share_copy') }}</button>
       </div>
-      <div class="postcard-right">
-        <img class="stamp" src="/static/img/snow-field-morning-roxbury.jpg" width="400" height="504" alt="{{ t('stamp_alt') }}" loading="lazy" decoding="async">
-        <ul class="address">
-          {% if action_page_url %}<li><a class="link" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('footer_action_page') }}</a></li>{% endif %}
-          <li><a class="link" href="{{ other_lang_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t('lang_other') }}</a></li>
-          <li><a class="link" href="{{ paths.privacy }}">{{ t('footer_privacy') }}</a></li>
-        </ul>
-      </div>
-      <p class="imprint">{{ t('footer_personal') }} {{ t('footer_credits') }}</p>
     </div>
+    <ul class="footer-links">
+      {% if action_page_url %}<li><a class="link" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('footer_action_page') }}</a></li>{% endif %}
+      <li><a class="link" href="{{ other_lang_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t('lang_other') }}</a></li>
+      <li><a class="link" href="{{ paths.privacy }}">{{ t('footer_privacy') }}</a></li>
+    </ul>
+    <p class="imprint">{{ t('footer_personal') }}</p>
   </div>
 </footer>
 {% endblock %}
-{% block scripts %}<script src="/static/form.js" defer></script><script src="/static/detail.js" defer></script><script src="/static/motion.js" defer></script>{% endblock %}
+{% block scripts %}<script src="/static/form.js" defer></script><script src="/static/detail.js" defer></script>{% endblock %}
