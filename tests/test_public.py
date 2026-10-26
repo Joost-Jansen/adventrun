@@ -97,3 +97,13 @@ def test_rate_limit(client):
     for _ in range(5):
         assert post(client).status_code == 303
     assert post(client).status_code == 429
+
+
+def test_headline_pledged_is_full_distance_before_the_end(client):
+    """€1 per km at 0 km: the big number is €325 (all 325 km), with €0 so far underneath."""
+    post(client, per_km_amount="1")
+    body = client.get("/").text
+    assert '<p class="value">€ 325</p>' in body
+    assert "Tot nu toe: € 0 bij 0 km" in body
+    en = client.get("/en").text
+    assert '<p class="value">€325</p>' in en and "So far: €0 at 0 km" in en

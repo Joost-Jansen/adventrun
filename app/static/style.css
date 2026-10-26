@@ -152,6 +152,7 @@ progress::-moz-progress-bar { background: linear-gradient(90deg, var(--green-2),
 
 .numbers { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.8rem; margin: 1.2rem 0 0.6rem; }
 .number { border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1rem; background: var(--surface); }
+.so-far { margin: 0.5rem 0 0; padding-top: 0.5rem; border-top: 1px dashed var(--border); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
 .number-donated { border-color: var(--red); background: var(--red-soft); }
 .label { margin: 0; color: var(--muted); font-size: 0.88rem; font-weight: 600; }
 .value { margin: 0.15rem 0 0; font-family: var(--serif); font-size: 2rem; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; }

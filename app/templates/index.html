@@ -21,7 +21,8 @@
       <p class="glance-km"><strong>{{ fmt_km(km_walked) }}</strong> / {{ planned_km }} km</p>
       <progress max="{{ planned_km }}" value="{{ km_walked }}"></progress>
       <div class="glance-row">
-        <div><p class="glance-label">{{ t('pledged_label') }}</p><p class="glance-value">{{ fmt(pledged_now) }}</p></div>
+        <div><p class="glance-label">{{ t('pledged_label') }}</p><p class="glance-value">{{ fmt(pledged_now if day > days else pledged_potential) }}</p>
+          <p class="glance-label">{% if day > days %}{{ t('pledged_final_hint', km=fmt_km(km_walked)) }}{% else %}{{ t('pledged_full_hint', total=planned_km) }}{% endif %}</p></div>
         <div><p class="glance-label">{{ t('donated_label') }}</p><p class="glance-value">{{ fmt(donated_cents) }}</p></div>
       </div>
     </div>

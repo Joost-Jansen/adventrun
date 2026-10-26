@@ -238,6 +238,7 @@ Keuzes in fase 1-2:
 - Het optionele bericht van een supporter is alleen zichtbaar in admin, niet op de site.
 - Contactgegevens ingevuld zonder toestemmingsvinkje: het formulier vraagt om het vinkje te zetten of het veld leeg te laten; er wordt niets opgeslagen.
 - Bezoekers krijgen geen cookies; alleen admin heeft een sessiecookie (SameSite=Strict, 12 uur).
+- Het grote getal "Toegezegd" is het bedrag als alle 325 km lukken, met daaronder "tot nu toe" bij de gelopen km; na afloop is het de eindstand. (Eerst was het groot getoonde getal "nu", wat bij 0 km € 0 gaf en verwarde.)
 - Een toezegging onthoudt de taal (`pledges.lang`); de berichttekst in de CSV is in die taal. Admin blijft Nederlands.
 - Tabellen worden bij het starten aangemaakt (`create_all`); een kolom hernoemen vraagt later een migratiestap.
 
@@ -281,3 +282,4 @@ Context: de MCP-tools van de tracker kunnen nu alleen het **actieve** plan tonen
 - 2026-10-26: eigen repo `adventrun` gekozen (los van trackerai-app), hosting op Railway, url later. Fase 1 (publieke site) en fase 2 (admin, CSV, verwijderen) gebouwd met tests (SQLite en Postgres).
 - 2026-10-26: fase 3 live op Railway (project `adventrun`, regio Amsterdam): https://web-production-cd3ca.up.railway.app. Rooktest live geslaagd (toezegging, admin, CSV, verwijderen; testdata gewist). Admin-wachtwoord nog door Joost te vervangen.
 - 2026-10-26: nieuw ontwerp (desktop met zijbalk, mobiel één kolom, adventskalender, keuzekaarten, bedragknoppen met referentie, live uitkomst, donatieblok, deelknop) en Engelse versie op `/en` om ook op het werk te delen. Kolom `pledges.lang` met migratiestap.
+- 2026-10-26: "Toegezegd" toont nu groot het bedrag bij alle 325 km en klein "tot nu toe"; voorheen leek een toezegging van € 1/km niet mee te tellen.

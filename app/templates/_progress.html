@@ -34,8 +34,14 @@
   <div class="numbers">
     <div class="number">
       <p class="label">{{ t('pledged_label') }}</p>
+      {% if day > days %}
       <p class="value">{{ fmt(pledged_now) }}</p>
-      <p class="hint">{{ t('pledged_hint', km=fmt_km(km_walked), potential=fmt(pledged_potential), total=planned_km) }}</p>
+      <p class="hint">{{ t('pledged_final_hint', km=fmt_km(km_walked)) }}</p>
+      {% else %}
+      <p class="value">{{ fmt(pledged_potential) }}</p>
+      <p class="hint">{{ t('pledged_full_hint', total=planned_km) }}</p>
+      <p class="so-far">{{ t('pledged_so_far', now=fmt(pledged_now), km=fmt_km(km_walked)) }}</p>
+      {% endif %}
     </div>
     <div class="number number-donated">
       <p class="label">{{ t('donated_label') }}</p>
