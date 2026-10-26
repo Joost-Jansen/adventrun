@@ -192,3 +192,15 @@ def test_no_goal_without_setting(client):
     body = client.get("/").text
     assert "Doel:" not in body and 'class="goal-ref"' not in body
     assert 'class="money-line"' in body  # the line still shows what has been pledged
+
+
+def test_owner_photo_only_when_set(settings):
+    from dataclasses import replace
+
+    from fastapi.testclient import TestClient
+
+    from app.main import create_app
+
+    assert 'class="avatar"' not in TestClient(create_app(replace(settings, owner_photo=""))).get("/").text
+    body = TestClient(create_app(replace(settings, owner_photo="/static/img/owner.webp"))).get("/").text
+    assert '<img src="/static/img/owner.webp" alt="Joost"' in body and "loopt voor het Rode Kruis" in body

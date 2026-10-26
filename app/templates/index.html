@@ -48,6 +48,22 @@
 
     {# the tally: total, per km, goal, donated #}
     <aside class="tally" id="toegezegd" aria-labelledby="tally-title">
+      {% if owner_photo %}
+      <div class="me">
+        <div class="avatar">
+          <img src="{{ owner_photo }}" alt="{{ owner }}" width="240" height="240">
+          <svg class="santa-hat" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+            <g transform="rotate(-14 50 22)">
+              <path class="hat-red" d="M21 22 C22 -4 50 -22 75 -14 C90 -9 99 3 100 17 L92 17 C90 8 83 2 75 2 C80 8 83 15 84 22 Z"/>
+              <path class="hat-fold" d="M75 2 C80 8 83 15 84 22 L78 22 C77 15 74 8 70 3 Z"/>
+              <rect class="hat-fur" x="16" y="15" width="73" height="12" rx="6"/>
+              <circle class="hat-fur" cx="96" cy="18" r="6.5"/>
+            </g>
+          </svg>
+        </div>
+        <p class="me-line"><strong>{{ owner }}</strong><br>{{ t('me_line') }}</p>
+      </div>
+      {% endif %}
       <h2 id="tally-title" class="tally-title">{{ t('tally_title') }}</h2>
       <p class="total" aria-describedby="receipt-note">{{ fmt(pledged_now if day > days else pledged_potential) }}</p>
       <p class="tally-note" id="receipt-note">{% if day > days %}{{ t('receipt_final_note', km=fmt_km(km_walked)) }}{% else %}{{ t('tally_total_note', km=planned_km) }}{% endif %}</p>

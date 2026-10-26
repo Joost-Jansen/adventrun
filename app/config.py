@@ -34,6 +34,8 @@ class Settings:
     challenge_days: int
     # The fundraising goal per km in cents (GOAL_PER_KM, e.g. 3,25); 0 shows no goal.
     goal_per_km_cents: int
+    # Path or URL of the owner's round photo on the page (OWNER_PHOTO); empty shows none.
+    owner_photo: str = ""
 
 
 def load_settings() -> Settings:
@@ -55,4 +57,5 @@ def load_settings() -> Settings:
         challenge_start=date.fromisoformat(os.environ.get("CHALLENGE_START", "2026-12-01")),
         challenge_days=int(os.environ.get("CHALLENGE_DAYS", "25")),
         goal_per_km_cents=parse_euro_cents(os.environ.get("GOAL_PER_KM", "")) or 0,
+        owner_photo=os.environ.get("OWNER_PHOTO", "/static/img/owner.webp"),
     )

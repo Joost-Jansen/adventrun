@@ -185,6 +185,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "lang": lang,
             "t": translator(lang, settings.owner_name, charity[lang]),
             "owner": settings.owner_name,
+            "owner_photo": settings.owner_photo,
             "charity": charity[lang],
             "action_page_url": cfg.action_page_url,
             "donated_cents": cfg.donated_total_cents,

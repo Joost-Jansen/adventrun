@@ -111,6 +111,7 @@ T: dict[str, dict[str, str]] = {
         # reply card (form)
         "reply_aside": "Een toezegging is een belofte, geen betaling. Na 25 december reken ik je bedrag uit en doneer je zelf op de actiepagina, vóór 1 januari.",
         "donate_now": "Doneer nu direct",
+        "me_line": "loopt voor {charity}",
         "donate_now_note": "Via de actiepagina van {charity}: meteen geregeld.",
         "or_pledge": "Of doe een toezegging",
         "step_type": "Hoe wil je steunen?",
@@ -295,6 +296,7 @@ T: dict[str, dict[str, str]] = {
         "donate_soon": "The link to the fundraising page will be here before 1 December.",
         "reply_aside": "A pledge is a promise, not a payment. After 25 December I work out your amount and you donate yourself on the fundraising page, before 1 January.",
         "donate_now": "Donate now",
+        "me_line": "runs for {charity}",
         "donate_now_note": "Through {charity}'s fundraising page: done right away.",
         "or_pledge": "Or make a pledge",
         "step_type": "How would you like to support?",
