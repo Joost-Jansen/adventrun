@@ -23,7 +23,6 @@ MONTHS = {
 T: dict[str, dict[str, str]] = {
     "nl": {
         "receipt_note_short": "toegezegd als ik alle {km} km haal",
-        "door_hint": "Open een deurtje voor een andere dag. Bedragen gaan ervan uit dat ik elke dag helemaal loop.",
         "panel_day": "toegezegd voor deze dag",
         "panel_cum_km": "gelopen tot en met deze dag",
         "panel_cum_amount": "toegezegd tot en met deze dag",
@@ -190,7 +189,6 @@ T: dict[str, dict[str, str]] = {
     },
     "en": {
         "receipt_note_short": "pledged if I run all {km} km",
-        "door_hint": "Open a door for another day. Amounts assume I run every day in full.",
         "panel_day": "pledged for this day",
         "panel_cum_km": "run up to this day",
         "panel_cum_amount": "pledged up to this day",
@@ -357,11 +355,6 @@ MONTHS_SHORT = {
     "nl": ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"],
     "en": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 }
-
-
-def format_date_short(d: date, lang: str) -> str:
-    """'1 dec' / '1 Dec': small enough for a calendar door."""
-    return f"{d.day} {MONTHS_SHORT[lang][d.month - 1]}"
 
 
 def format_range(d1: date, d2: date, lang: str) -> str:

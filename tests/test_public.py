@@ -163,5 +163,5 @@ def test_doors_show_date_and_km_and_open_onto_the_amount(client):
     body = client.get("/").text
     # day 25: "25 dec" and "25 km" on the door, €12,50 behind it (€0,50 × 25 km)
     assert '<span class="door-inside" aria-hidden="true">€\u00a012,50</span>' in body
-    assert '<span class="door-date">25 dec</span><span class="door-km">25<span class="door-unit">&nbsp;km</span></span>' in body
-    assert '<span class="door-date">25 Dec</span>' in client.get("/en").text
+    assert '<span class="door-num">25</span><span class="door-units"><span>dec</span><span>km</span></span>' in body
+    assert "<span>Dec</span><span>km</span>" in client.get("/en").text
