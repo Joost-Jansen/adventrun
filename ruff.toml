@@ -1,0 +1,10 @@
+required-version = "==0.17.1"
+target-version = "py313"
+line-length = 140
+
+[format]
+quote-style = "double"
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501", "B008", "B904"]

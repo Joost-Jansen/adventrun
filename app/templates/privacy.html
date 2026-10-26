@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Privacy{% endblock %}
+{% block content %}
+<section class="card prose">
+  <h1>Privacy</h1>
+  <p>Deze site is een persoonlijke actie van {{ owner }} voor {{ charity }}. Er worden geen betalingen verwerkt.</p>
+
+  <h2>Welke gegevens</h2>
+  <ul>
+    <li>Je naam of bijnaam, en of je die op de muur van steun wilt tonen.</li>
+    <li>Je toezegging: per km (met eventueel maximum) of een vast bedrag.</li>
+    <li>Alleen als je toestemming geeft: je e-mailadres of telefoonnummer.</li>
+    <li>Optioneel een bericht aan {{ owner }}.</li>
+  </ul>
+
+  <h2>Waarom</h2>
+  <p>Om na afloop jouw bedrag uit te rekenen en, als je dat wilt, je één keer te bedanken en te herinneren aan je
+    donatie. Grondslag: jouw toestemming.</p>
+
+  <h2>Wie ziet ze</h2>
+  <p>Alleen {{ owner }}. Op de site staan alleen weergavenamen (als je niet voor anoniem kiest) en totalen; nooit
+    bedragen per persoon, contactgegevens of berichten. De gegevens staan bij de hostingpartij (Railway) en worden
+    met niemand gedeeld, ook niet met {{ charity }}.</p>
+
+  <h2>Cookies en tracking</h2>
+  <p>Geen analytics, geen tracking en geen cookies voor bezoekers. Alleen het beheerdersdeel gebruikt een
+    sessiecookie om in te loggen.</p>
+
+  <h2>Bewaartermijn</h2>
+  <p>Uiterlijk 31 januari 2027 worden alle persoonsgegevens verwijderd.</p>
+
+  <h2>Inzien of verwijderen</h2>
+  <p>Wil je je gegevens inzien, aanpassen of verwijderen, of je toestemming intrekken? Laat het {{ owner }} weten,
+    dan wordt dat meteen geregeld.</p>
+</section>
+{% endblock %}

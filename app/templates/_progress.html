@@ -1,0 +1,27 @@
+<section class="card" aria-labelledby="voortgang">
+  <h2 id="voortgang">Voortgang</h2>
+  {% if day == 0 %}
+    <p class="big">Start op 1 december</p>
+  {% elif day > days %}
+    <p class="big">Klaar: {{ days }} dagen</p>
+  {% else %}
+    <p class="big">Dag {{ day }} van {{ days }}</p>
+    <p>Vandaag op het programma: {{ day }} km{% if km_today is not none %}, gelopen: {{ km_today|km }} km{% endif %}.</p>
+  {% endif %}
+  <progress max="{{ planned_km }}" value="{{ km_walked }}" aria-label="{{ km_walked|km }} van {{ planned_km }} km gelopen"></progress>
+  <p><strong>{{ km_walked|km }}</strong> van {{ planned_km }} km gelopen</p>
+
+  <div class="numbers">
+    <div>
+      <p class="label">Toegezegd</p>
+      <p class="value">{{ pledged_now|euro }}</p>
+      <p class="hint">nu, bij {{ km_walked|km }} km · {{ pledged_potential|euro }} als ik alle {{ planned_km }} km haal</p>
+    </div>
+    <div>
+      <p class="label">Gedoneerd bij {{ charity }}</p>
+      <p class="value">{{ donated_cents|euro }}</p>
+      <p class="hint">handmatig bijgewerkt{% if action_page_url %} · <a href="{{ action_page_url }}" rel="noopener">actiepagina</a>{% endif %}</p>
+    </div>
+  </div>
+  <p class="hint">Toezeggingen zijn beloftes, geen betalingen. Na 25 december doneert iedereen zelf op de actiepagina.</p>
+</section>

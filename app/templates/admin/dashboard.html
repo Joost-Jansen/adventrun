@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Beheer{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+{% block content %}
+<header class="admin-head">
+  <h1>Beheer</h1>
+  <form method="post" action="/admin/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="secondary">Uitloggen</button></form>
+</header>
+
+<section class="card">
+  <h2>Stand</h2>
+  <p>{{ km_walked|km }} van {{ planned_km }} km · {{ supporters }} toezeggingen (zonder ingetrokken)</p>
+  <p>Toegezegd nu: <strong>{{ pledged_now|euro }}</strong> · als alle {{ planned_km }} km: <strong>{{ pledged_potential|euro }}</strong>
+    · gedoneerd: <strong>{{ donated_cents|euro }}</strong></p>
+</section>
+
+<section class="card" id="instellingen">
+  <h2>Gedoneerd en actiepagina</h2>
+  <form method="post" action="/admin/settings" class="inline">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="field"><label for="donated_total">Gedoneerd bij {{ charity }} (€)</label>
+      <input id="donated_total" name="donated_total" inputmode="decimal" value="{{ '%d,%02d' % (donated_cents // 100, donated_cents % 100) }}"></div>
+    <div class="field grow"><label for="action_page_url">Link naar de actiepagina</label>
+      <input id="action_page_url" name="action_page_url" type="url" placeholder="https://" value="{{ action_page_url }}"></div>
+    <button type="submit">Opslaan</button>
+  </form>
+</section>
+
+<section class="card" id="km">
+  <h2>Km per dag</h2>
+  <form method="post" action="/admin/progress" class="inline">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="field"><label for="day">Datum</label><input id="day" name="day" type="date" value="{{ today.isoformat() }}" required></div>
+    <div class="field"><label for="km_input">Km (leeg = wissen)</label><input id="km_input" name="km" inputmode="decimal"></div>
+    <button type="submit">Opslaan</button>
+  </form>
+  {% if progress %}
+  <table>
+    <thead><tr><th>Datum</th><th>Km</th></tr></thead>
+    <tbody>{% for r in progress %}<tr><td>{{ r.date.isoformat() }}</td><td>{{ r.km|km }}</td></tr>{% endfor %}</tbody>
+  </table>
+  {% endif %}
+</section>
+
+<section class="card" id="toezeggingen">
+  <h2>Toezeggingen</h2>
+  <p><a class="button" href="/admin/export.csv">Exporteer CSV met berichttekst</a></p>
+  {% if not rows %}<p>Nog geen toezeggingen.</p>{% endif %}
+  {% for r in rows %}
+  <article class="pledge" id="p{{ r.p.id }}">
+    <h3>{{ r.p.display_name or 'Anoniem' }}{% if not r.p.show_name %} <span class="tag">niet op muur</span>{% endif %}</h3>
+    <p>{{ r.describe }} · nu {{ r.amount_now|euro }} · {{ r.p.created_at.strftime('%d-%m-%Y %H:%M') }}</p>
+    {% if r.p.email or r.p.phone %}<p>Contact: {{ r.p.email or r.p.phone }}</p>{% endif %}
+    {% if r.p.message %}<blockquote>{{ r.p.message }}</blockquote>{% endif %}
+    <form method="post" action="/admin/pledges/{{ r.p.id }}" class="inline">
+      <input type="hidden" name="csrf" value="{{ csrf }}">
+      <div class="field"><label for="status{{ r.p.id }}">Status</label>
+        <select id="status{{ r.p.id }}" name="status">{% for k, label in statuses %}<option value="{{ k }}" {% if r.p.status == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+      <div class="field grow"><label for="note{{ r.p.id }}">Notitie</label><input id="note{{ r.p.id }}" name="admin_note" value="{{ r.p.admin_note }}"></div>
+      <button type="submit">Opslaan</button>
+    </form>
+    <form method="post" action="/admin/pledges/{{ r.p.id }}/delete" data-confirm="Toezegging van {{ r.p.display_name or 'Anoniem' }} verwijderen?">
+      <input type="hidden" name="csrf" value="{{ csrf }}"><button class="danger">Verwijderen</button>
+    </form>
+  </article>
+  {% endfor %}
+</section>
+
+<section class="card">
+  <h2>Alles verwijderen</h2>
+  <p>Verwijdert alle toezeggingen en contactgegevens (uiterlijk 31 januari 2027). Km en instellingen blijven staan.</p>
+  <form method="post" action="/admin/delete-all" class="inline">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="field grow"><label for="confirm">Typ VERWIJDER ALLES</label><input id="confirm" name="confirm" autocomplete="off"></div>
+    <button class="danger">Alles verwijderen</button>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}<script src="/static/admin.js" defer></script>{% endblock %}

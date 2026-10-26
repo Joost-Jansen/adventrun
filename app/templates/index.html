@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="hero">
+  <p class="eyebrow">1 t/m 25 december · voor {{ charity }}</p>
+  <h1>Elke dag het aantal km van de dag</h1>
+  <p>December is voor veel van ons een gezellige maand, en ik besef steeds meer hoe goed we het eigenlijk hebben.
+    Tegelijk gaan zoveel mensen deze maand in onder veel zwaardere omstandigheden.</p>
+  <p>Daarom loop ik van 1 t/m 25 december elke dag het aantal km van de dag: 1 km op 1 december, 25 km op
+    25 december, samen 325 km. Het is ook een uitdaging voor mezelf, en ik zie er eerlijk gezegd een beetje tegenop.
+    Elke km telt.</p>
+  <p class="signature">{{ owner }}</p>
+</header>
+
+{% include "_progress.html" %}
+
+<section class="card" aria-labelledby="toezeggen">
+  <h2 id="toezeggen">Doe een toezegging</h2>
+  <p>Zeg hier toe wat je wilt geven, per km of een vast bedrag. Na afloop krijg je (als je dat wilt) één bericht met
+    jouw bedrag, en doneer je zelf op de pagina van {{ charity }}. Het geld gaat nooit via mij of deze site.</p>
+
+  {% if errors %}
+  <div class="errors" role="alert">
+    <p><strong>Nog niet gelukt.</strong> Kijk de gemarkeerde velden na.</p>
+  </div>
+  {% endif %}
+
+  <form method="post" action="/toezeggen" novalidate>
+    <div class="field {% if errors.display_name %}invalid{% endif %}">
+      <label for="display_name">Naam of bijnaam</label>
+      <input id="display_name" name="display_name" maxlength="60" autocomplete="nickname" value="{{ form.display_name or '' }}"
+        {% if errors.display_name %}aria-invalid="true" aria-describedby="err-name"{% endif %}>
+      {% if errors.display_name %}<p class="error" id="err-name">{{ errors.display_name }}</p>{% endif %}
+      <label class="check"><input type="checkbox" name="anonymous" value="1" {% if form.anonymous %}checked{% endif %}>
+        Anoniem: toon mijn naam niet op de muur van steun</label>
+    </div>
+
+    <fieldset class="field {% if errors.type %}invalid{% endif %}">
+      <legend>Hoe wil je steunen?</legend>
+      <label class="check"><input type="radio" name="type" value="per_km" {% if form.type != 'fixed' %}checked{% endif %}> Per km</label>
+      <label class="check"><input type="radio" name="type" value="fixed" {% if form.type == 'fixed' %}checked{% endif %}> Vast bedrag</label>
+      {% if errors.type %}<p class="error">{{ errors.type }}</p>{% endif %}
+    </fieldset>
+
+    <div class="group" data-for="per_km">
+      <div class="field {% if errors.per_km_amount %}invalid{% endif %}">
+        <label for="per_km_amount">Bedrag per km (€)</label>
+        <input id="per_km_amount" name="per_km_amount" inputmode="decimal" placeholder="0,10" value="{{ form.per_km_amount or '' }}"
+          {% if errors.per_km_amount %}aria-invalid="true" aria-describedby="err-perkm"{% endif %}>
+        {% if errors.per_km_amount %}<p class="error" id="err-perkm">{{ errors.per_km_amount }}</p>{% endif %}
+        <p class="hint">Bij 325 km: € 0,05 = € 16,25 · € 0,10 = € 32,50 · € 0,25 = € 81,25 · € 1 = € 325.</p>
+      </div>
+      <div class="field {% if errors.max_amount %}invalid{% endif %}">
+        <label for="max_amount">Maximum (€, optioneel)</label>
+        <input id="max_amount" name="max_amount" inputmode="decimal" placeholder="bijv. 25" value="{{ form.max_amount or '' }}"
+          {% if errors.max_amount %}aria-invalid="true" aria-describedby="err-max"{% endif %}>
+        {% if errors.max_amount %}<p class="error" id="err-max">{{ errors.max_amount }}</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="group" data-for="fixed">
+      <div class="field {% if errors.fixed_amount %}invalid{% endif %}">
+        <label for="fixed_amount">Vast bedrag (€)</label>
+        <input id="fixed_amount" name="fixed_amount" inputmode="decimal" placeholder="20" value="{{ form.fixed_amount or '' }}"
+          {% if errors.fixed_amount %}aria-invalid="true" aria-describedby="err-fixed"{% endif %}>
+        {% if errors.fixed_amount %}<p class="error" id="err-fixed">{{ errors.fixed_amount }}</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="field {% if errors.contact %}invalid{% endif %}">
+      <label for="contact">E-mail of telefoon (optioneel)</label>
+      <input id="contact" name="contact" maxlength="254" autocomplete="email" value="{{ form.contact or '' }}"
+        {% if errors.contact %}aria-invalid="true" aria-describedby="err-contact"{% endif %}>
+      {% if errors.contact %}<p class="error" id="err-contact">{{ errors.contact }}</p>{% endif %}
+      <label class="check"><input type="checkbox" name="consent" value="1" {% if form.consent %}checked{% endif %}>
+        Mag ik je na afloop één keer contact opnemen om te bedanken en te herinneren?</label>
+      <p class="hint">Alleen {{ owner }} ziet dit. Zonder vinkje bewaar ik geen contactgegevens.</p>
+    </div>
+
+    <div class="field {% if errors.message %}invalid{% endif %}">
+      <label for="message">Bericht voor {{ owner }} (optioneel)</label>
+      <textarea id="message" name="message" maxlength="500" rows="3">{{ form.message or '' }}</textarea>
+      {% if errors.message %}<p class="error">{{ errors.message }}</p>{% endif %}
+      <p class="hint">Alleen {{ owner }} leest dit; het komt niet op de site.</p>
+    </div>
+
+    <div class="hp" aria-hidden="true">
+      <label for="website">Laat dit veld leeg</label>
+      <input id="website" name="website" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button type="submit">Toezeggen</button>
+    <p class="hint">Een toezegging is geen betaling. Lees de <a href="/privacy">privacytekst</a>.</p>
+  </form>
+</section>
+
+<section class="card" aria-labelledby="muur">
+  <h2 id="muur">Muur van steun</h2>
+  {% if supporters == 0 %}
+    <p>Nog niemand. Jij kunt de eerste zijn.</p>
+  {% else %}
+    <ul class="wall">
+      {% for name in wall %}<li>{{ name }}</li>{% endfor %}
+      {% if anonymous %}<li class="anon">en {{ anonymous }} anoniem</li>{% endif %}
+    </ul>
+    <p class="hint">Op volgorde van aanmelding, zonder bedragen.</p>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}<script src="/static/form.js" defer></script>{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Bedankt!{% endblock %}
+{% block robots %}noindex{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Bedankt voor je toezegging! 💙</h1>
+  <p>Je toezegging is opgeslagen. Dit is een belofte, geen betaling: je betaalt nu niets.</p>
+  <p>Na 25 december kun je je bedrag zelf doneren op de actiepagina van {{ charity }}, vóór 1 januari.
+    Heb je contactgegevens achtergelaten, dan stuur ik je één keer een bericht met jouw bedrag.</p>
+  {% if action_page_url %}
+    <p><a class="button" href="{{ action_page_url }}" rel="noopener">Doneren gebeurt op de pagina van {{ charity }}</a></p>
+  {% else %}
+    <p class="hint">De link naar de actiepagina van {{ charity }} volgt hier binnenkort.</p>
+  {% endif %}
+  <p><a href="/">Terug naar de voortgang</a></p>
+</section>
+{% endblock %}
