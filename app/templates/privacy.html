@@ -1,36 +1,27 @@
 {% extends "base.html" %}
-{% block title %}Privacy{% endblock %}
+{% block title %}{{ t('privacy_title') }}{% endblock %}
 {% block content %}
-<section class="card prose">
-  <h1>Privacy</h1>
-  <p>Deze site is een persoonlijke actie van {{ owner }} voor {{ charity }}. Er worden geen betalingen verwerkt.</p>
-
-  <h2>Welke gegevens</h2>
-  <ul>
-    <li>Je naam of bijnaam, en of je die op de muur van steun wilt tonen.</li>
-    <li>Je toezegging: per km (met eventueel maximum) of een vast bedrag.</li>
-    <li>Alleen als je toestemming geeft: je e-mailadres of telefoonnummer.</li>
-    <li>Optioneel een bericht aan {{ owner }}.</li>
-  </ul>
-
-  <h2>Waarom</h2>
-  <p>Om na afloop jouw bedrag uit te rekenen en, als je dat wilt, je één keer te bedanken en te herinneren aan je
-    donatie. Grondslag: jouw toestemming.</p>
-
-  <h2>Wie ziet ze</h2>
-  <p>Alleen {{ owner }}. Op de site staan alleen weergavenamen (als je niet voor anoniem kiest) en totalen; nooit
-    bedragen per persoon, contactgegevens of berichten. De gegevens staan bij de hostingpartij (Railway) en worden
-    met niemand gedeeld, ook niet met {{ charity }}.</p>
-
-  <h2>Cookies en tracking</h2>
-  <p>Geen analytics, geen tracking en geen cookies voor bezoekers. Alleen het beheerdersdeel gebruikt een
-    sessiecookie om in te loggen.</p>
-
-  <h2>Bewaartermijn</h2>
-  <p>Uiterlijk 31 januari 2027 worden alle persoonsgegevens verwijderd.</p>
-
-  <h2>Inzien of verwijderen</h2>
-  <p>Wil je je gegevens inzien, aanpassen of verwijderen, of je toestemming intrekken? Laat het {{ owner }} weten,
-    dan wordt dat meteen geregeld.</p>
-</section>
+<div class="container narrow-page">
+  <section class="card prose">
+    <h1>{{ t('privacy_title') }}</h1>
+    <p>{{ t('privacy_intro') }}</p>
+    <h2>{{ t('privacy_what_h') }}</h2>
+    <ul>
+      <li>{{ t('privacy_what_1') }}</li>
+      <li>{{ t('privacy_what_2') }}</li>
+      <li>{{ t('privacy_what_3') }}</li>
+      <li>{{ t('privacy_what_4') }}</li>
+    </ul>
+    <h2>{{ t('privacy_why_h') }}</h2>
+    <p>{{ t('privacy_why') }}</p>
+    <h2>{{ t('privacy_who_h') }}</h2>
+    <p>{{ t('privacy_who') }}</p>
+    <h2>{{ t('privacy_cookies_h') }}</h2>
+    <p>{{ t('privacy_cookies') }}</p>
+    <h2>{{ t('privacy_retention_h') }}</h2>
+    <p>{{ t('privacy_retention') }}</p>
+    <h2>{{ t('privacy_rights_h') }}</h2>
+    <p>{{ t('privacy_rights') }}</p>
+  </section>
+</div>
 {% endblock %}

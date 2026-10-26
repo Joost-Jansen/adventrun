@@ -21,6 +21,7 @@ class Settings:
     admin_password: str
     owner_name: str
     charity_name: str
+    charity_name_en: str
     # Origins allowed to POST (comma-separated, e.g. https://adventrun.trackerai.nl). Empty: the request's own host.
     public_origins: tuple[str, ...]
     # Behind Railway's proxy the client address is the last X-Forwarded-For entry.
@@ -43,6 +44,7 @@ def load_settings() -> Settings:
         admin_password=os.environ.get("ADMIN_PASSWORD", ""),
         owner_name=os.environ.get("OWNER_NAME", "Joost"),
         charity_name=os.environ.get("CHARITY_NAME", "het Rode Kruis"),
+        charity_name_en=os.environ.get("CHARITY_NAME_EN", "the Red Cross"),
         public_origins=tuple(o.strip().rstrip("/") for o in os.environ.get("PUBLIC_ORIGINS", "").split(",") if o.strip()),
         trust_proxy=os.environ.get("TRUST_PROXY", "0") == "1",
         secure_cookies=os.environ.get("SECURE_COOKIES", "1" if os.environ.get("ENV") == "production" else "0") == "1",

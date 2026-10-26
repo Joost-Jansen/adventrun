@@ -63,7 +63,7 @@ def test_wall_shows_names_without_amounts(client):
     body = client.get("/").text
     assert "Sanne" in body
     assert "Geheim" not in body
-    assert "en 1 anoniem" in body
+    assert "+ 1 anoniem" in body
     assert "0,37" not in body
 
 

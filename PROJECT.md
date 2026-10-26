@@ -231,11 +231,14 @@ Eigen repo (`adventrun`), los van `trackerai-app`. Hosting op Railway (één ser
 | 5 | Km automatisch uit de tracker via read-only endpoint (alleen datum en km, met token) | later (zie 9.4) |
 | 6 | Optioneel: e-mail via Resend/Postmark (max. 1-2 per persoon, afmeldlink); 31 jan 2027 alles verwijderen | later |
 
+| 3b | Nieuw ontwerp en tweetalig (NL op `/`, EN op `/en`): twee kolommen op desktop met zijbalk (doneren, muur van steun, delen), één kolom op mobiel, adventskalender met 25 tegels, keuzekaarten per km/vast, bedragknoppen met referentie (totaal bij 325 km, of ≈ per km bij een vast bedrag) en live uitkomst | gebouwd (26 okt) |
+
 Keuzes in fase 1-2:
 - Km boven het geplande totaal (325) tellen niet mee voor toezeggingen, zodat niemand meer betaalt dan verwacht.
 - Het optionele bericht van een supporter is alleen zichtbaar in admin, niet op de site.
 - Contactgegevens ingevuld zonder toestemmingsvinkje: het formulier vraagt om het vinkje te zetten of het veld leeg te laten; er wordt niets opgeslagen.
 - Bezoekers krijgen geen cookies; alleen admin heeft een sessiecookie (SameSite=Strict, 12 uur).
+- Een toezegging onthoudt de taal (`pledges.lang`); de berichttekst in de CSV is in die taal. Admin blijft Nederlands.
 - Tabellen worden bij het starten aangemaakt (`create_all`); een kolom hernoemen vraagt later een migratiestap.
 
 ### Acceptatiecriteria
@@ -277,3 +280,4 @@ Context: de MCP-tools van de tracker kunnen nu alleen het **actieve** plan tonen
 - 2026-10-25: brief aangemaakt. Schema (plan id 2) in tracker, herinnering 1 dec gezet, schoenindeling berekend, berichten opgesteld.
 - 2026-10-26: eigen repo `adventrun` gekozen (los van trackerai-app), hosting op Railway, url later. Fase 1 (publieke site) en fase 2 (admin, CSV, verwijderen) gebouwd met tests (SQLite en Postgres).
 - 2026-10-26: fase 3 live op Railway (project `adventrun`, regio Amsterdam): https://web-production-cd3ca.up.railway.app. Rooktest live geslaagd (toezegging, admin, CSV, verwijderen; testdata gewist). Admin-wachtwoord nog door Joost te vervangen.
+- 2026-10-26: nieuw ontwerp (desktop met zijbalk, mobiel één kolom, adventskalender, keuzekaarten, bedragknoppen met referentie, live uitkomst, donatieblok, deelknop) en Engelse versie op `/en` om ook op het werk te delen. Kolom `pledges.lang` met migratiestap.

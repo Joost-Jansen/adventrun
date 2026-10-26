@@ -5,7 +5,7 @@ The site never handles payments: people pledge here and donate on the charity's 
 
 import re
 import time
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -20,6 +20,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from .calc import challenge_day, euro, km_text, parse_euro_cents, parse_km, pledge_amount_cents, pledged_totals
 from .config import Settings, load_settings
 from .db import PLEDGE_STATUSES, Pledge, Progress, SiteSettings, make_sessionmaker
+from .i18n import LANGS, PATHS, format_date, translator
 from .messages import STATUS_LABELS, describe, export_csv, terms
 from .security import RateLimiter, check_csrf, check_origin, client_ip, csrf_token, password_ok, security_headers
 
@@ -38,6 +39,44 @@ LIMITS = {
 
 def today() -> date:
     return datetime.now(TZ).date()
+
+
+def calendar(start: date, days: int, today_: date, km_by_date: dict) -> list[dict]:
+    """One tile per challenge day: done (the day's km or more), partial, today, past or future."""
+    tiles = []
+    for n in range(1, days + 1):
+        d = start + timedelta(days=n - 1)
+        km = km_by_date.get(d)
+        if km is not None and km >= n:
+            state = "done"
+        elif km:
+            state = "partial"
+        elif d == today_:
+            state = "today"
+        else:
+            state = "past" if d < today_ else "future"
+        tiles.append({"day": n, "date": d, "km": km, "state": state, "is_today": d == today_})
+    return tiles
+
+
+PER_KM_CHOICES = (5, 10, 25, 50, 100)  # cents per km
+FIXED_CHOICES = (1000, 2500, 5000, 10000)  # cents
+
+
+def amount_choices(planned_km: int, lang: str) -> dict:
+    """The preset amounts on the form, each with its reference: the total at full distance, or the amount per km."""
+
+    def input_value(cents: int) -> str:
+        whole, rest = divmod(cents, 100)
+        sep = "," if lang == "nl" else "."
+        return f"{whole}{sep}{rest:02d}" if rest else str(whole)
+
+    return {
+        "per_km_choices": [{"value": input_value(c), "label": euro(c, lang), "total": euro(c * planned_km, lang)} for c in PER_KM_CHOICES],
+        "fixed_choices": [
+            {"value": input_value(c), "label": euro(c, lang), "per_km": euro(round(c / planned_km), lang)} for c in FIXED_CHOICES
+        ],
+    }
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -64,8 +103,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     templates = Jinja2Templates(directory=HERE / "templates")
     templates.env.filters["euro"] = euro
     templates.env.filters["km"] = km_text
+    charity = {"nl": settings.charity_name, "en": settings.charity_name_en}
+    # The admin pages are Dutch; public pages pass their own `t`.
+    templates.env.globals["t"] = translator("nl", settings.owner_name, charity["nl"])
 
-    def site_context(s) -> dict:
+    def site_context(s, lang: str = "nl") -> dict:
         cfg = s.get(SiteSettings, 1)
         planned = cfg.total_planned_km
         km_walked = s.scalar(select(func.coalesce(func.sum(Progress.km), 0))) or 0
@@ -73,19 +115,23 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         now_cents, potential_cents = pledged_totals([terms(p) for p in pledges], km_walked, planned)
         t = today()
         day = challenge_day(t, settings.challenge_start, settings.challenge_days)
-        today_row = s.get(Progress, t)
+        km_by_date = {r.date: r.km for r in s.scalars(select(Progress))}
+        today_row = km_by_date.get(t)
         return {
+            "lang": lang,
+            "t": translator(lang, settings.owner_name, charity[lang]),
             "owner": settings.owner_name,
-            "charity": settings.charity_name,
+            "charity": charity[lang],
             "action_page_url": cfg.action_page_url,
             "donated_cents": cfg.donated_total_cents,
             "planned_km": planned,
             "km_walked": Decimal(str(km_walked)),
-            "km_percent": min(100, round(float(km_walked) / planned * 100)) if planned else 0,
-            "km_today": today_row.km if today_row else None,
+            "km_today": today_row,
             "day": day,
             "days": settings.challenge_days,
             "start": settings.challenge_start,
+            "start_text": format_date(settings.challenge_start, lang),
+            "calendar": calendar(settings.challenge_start, settings.challenge_days, t, km_by_date),
             "pledged_now": now_cents,
             "pledged_potential": potential_cents,
             "supporters": len(pledges),
@@ -93,21 +139,54 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "anonymous": sum(1 for p in pledges if not (p.show_name and p.display_name)),
         }
 
+    def page(request: Request, name: str, lang: str, template: str, extra: dict | None = None, status_code: int = 200):
+        with sessions() as s:
+            ctx = site_context(s, lang)
+        other = "en" if lang == "nl" else "nl"
+        ctx |= {
+            "page": name,
+            "paths": {k: v[lang] for k, v in PATHS.items()},
+            "alternates": PATHS[name],
+            "other_lang": other,
+            "other_lang_url": PATHS[name][other],
+            "fmt": lambda cents: euro(cents, lang),
+            "fmt_km": lambda km: km_text(km, lang),
+        }
+        if name == "home":
+            ctx |= amount_choices(ctx["planned_km"], lang)
+        return templates.TemplateResponse(request, template, ctx | (extra or {}), status_code=status_code)
+
     # ---- public ------------------------------------------------------------------------------------------------
 
     @app.get("/health")
     def health():
         return {"ok": True}
 
-    @app.get("/", response_class=HTMLResponse)
-    def index(request: Request):
-        with sessions() as s:
-            ctx = site_context(s)
-        return templates.TemplateResponse(request, "index.html", {**ctx, "errors": {}, "form": {"type": "per_km"}})
+    def home_view(lang: str):
+        def view(request: Request):
+            return page(request, "home", lang, "index.html", {"errors": {}, "form": {"type": "per_km"}})
+
+        return view
+
+    def static_view(name: str, lang: str, template: str):
+        def view(request: Request):
+            return page(request, name, lang, template)
+
+        return view
+
+    for lang in LANGS:
+        app.get(PATHS["home"][lang], response_class=HTMLResponse)(home_view(lang))
+        app.get(PATHS["thanks"][lang], response_class=HTMLResponse)(static_view("thanks", lang, "thanks.html"))
+        app.get(PATHS["privacy"][lang], response_class=HTMLResponse)(static_view("privacy", lang, "privacy.html"))
+
+    @app.get("/en/", include_in_schema=False)
+    def en_slash():
+        return RedirectResponse("/en", status_code=308)
 
     @app.post("/toezeggen")
     def pledge(
         request: Request,
+        lang: str = Form("nl"),
         display_name: str = Form(""),
         anonymous: str = Form(""),
         type: str = Form("per_km"),
@@ -119,11 +198,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         message: str = Form(""),
         website: str = Form(""),  # honeypot: hidden from people, filled in by bots
     ):
+        lang = lang if lang in LANGS else "nl"
+        t = translator(lang, settings.owner_name, charity[lang])
         check_origin(request, settings)
         if not pledge_limiter.hit(client_ip(request, settings)):
-            raise HTTPException(429, "Te veel toezeggingen achter elkaar. Probeer het over een paar minuten opnieuw.")
+            raise HTTPException(429, t("err_rate"))
         if website:
-            return RedirectResponse("/bedankt", status_code=303)  # pretend it worked
+            return RedirectResponse(PATHS["thanks"][lang], status_code=303)  # pretend it worked
 
         form = {
             "display_name": display_name.strip(),
@@ -139,46 +220,44 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         errors: dict[str, str] = {}
         name = " ".join(form["display_name"].split())
         if len(name) > 60:
-            errors["display_name"] = "Maximaal 60 tekens."
+            errors["display_name"] = t("err_name_long")
         if not name and not form["anonymous"]:
-            errors["display_name"] = "Vul een naam of bijnaam in, of kies anoniem."
+            errors["display_name"] = t("err_name_required")
         amount = max_cents = None
         if type == "per_km":
             amount = parse_euro_cents(per_km_amount)
             lo, hi = LIMITS["per_km"]
             if amount is None or not lo <= amount <= hi:
-                errors["per_km_amount"] = "Vul een bedrag per km in, tussen € 0,01 en € 100."
+                errors["per_km_amount"] = t("err_per_km")
             if max_amount.strip():
                 max_cents = parse_euro_cents(max_amount)
                 lo, hi = LIMITS["max"]
                 if max_cents is None or not lo <= max_cents <= hi:
-                    errors["max_amount"] = "Vul een maximum in tussen € 0,01 en € 10.000, of laat het leeg."
+                    errors["max_amount"] = t("err_max")
         elif type == "fixed":
             amount = parse_euro_cents(fixed_amount)
             lo, hi = LIMITS["fixed"]
             if amount is None or not lo <= amount <= hi:
-                errors["fixed_amount"] = "Vul een bedrag in tussen € 1 en € 10.000."
+                errors["fixed_amount"] = t("err_fixed")
         else:
-            errors["type"] = "Kies per km of een vast bedrag."
+            errors["type"] = t("err_type")
         email = phone = None
         if form["contact"]:
             if not form["consent"]:
-                errors["contact"] = "Vink toestemming aan, of laat dit veld leeg. Zonder toestemming bewaar ik geen contactgegevens."
+                errors["contact"] = t("err_consent")
             elif "@" in form["contact"]:
                 if not EMAIL_RE.match(form["contact"]) or len(form["contact"]) > 254:
-                    errors["contact"] = "Dit lijkt geen geldig e-mailadres."
+                    errors["contact"] = t("err_email")
                 email = form["contact"]
             else:
                 if not PHONE_RE.match(form["contact"]):
-                    errors["contact"] = "Vul een geldig e-mailadres of telefoonnummer in."
+                    errors["contact"] = t("err_contact")
                 phone = form["contact"]
         if len(form["message"]) > 500:
-            errors["message"] = "Maximaal 500 tekens."
+            errors["message"] = t("err_message")
 
         if errors:
-            with sessions() as s:
-                ctx = site_context(s)
-            return templates.TemplateResponse(request, "index.html", {**ctx, "errors": errors, "form": form}, status_code=400)
+            return page(request, "home", lang, "index.html", {"errors": errors, "form": form}, status_code=400)
 
         with sessions() as s:
             s.add(
@@ -192,22 +271,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                     phone=phone,
                     contact_consent=bool(email or phone),
                     message=form["message"] or None,
+                    lang=lang,
                 )
             )
             s.commit()
-        return RedirectResponse("/bedankt", status_code=303)
-
-    @app.get("/bedankt", response_class=HTMLResponse)
-    def thanks(request: Request):
-        with sessions() as s:
-            ctx = site_context(s)
-        return templates.TemplateResponse(request, "thanks.html", ctx)
-
-    @app.get("/privacy", response_class=HTMLResponse)
-    def privacy(request: Request):
-        with sessions() as s:
-            ctx = site_context(s)
-        return templates.TemplateResponse(request, "privacy.html", ctx)
+        return RedirectResponse(PATHS["thanks"][lang], status_code=303)
 
     # ---- admin -------------------------------------------------------------------------------------------------
 
@@ -351,7 +419,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         with sessions() as s:
             ctx = site_context(s)
             pledges = s.scalars(select(Pledge).order_by(Pledge.created_at, Pledge.id)).all()
-        body = export_csv(pledges, ctx["km_walked"], ctx["planned_km"], ctx["action_page_url"], settings.owner_name, settings.charity_name)
+        body = export_csv(pledges, ctx["km_walked"], ctx["planned_km"], ctx["action_page_url"], settings.owner_name, charity)
         return Response(
             body,
             media_type="text/csv; charset=utf-8",

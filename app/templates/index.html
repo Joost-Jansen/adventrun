@@ -1,109 +1,206 @@
 {% extends "base.html" %}
 {% block content %}
-<header class="hero">
-  <p class="eyebrow">1 t/m 25 december · voor {{ charity }}</p>
-  <h1>Elke dag het aantal km van de dag</h1>
-  <p>December is voor veel van ons een gezellige maand, en ik besef steeds meer hoe goed we het eigenlijk hebben.
-    Tegelijk gaan zoveel mensen deze maand in onder veel zwaardere omstandigheden.</p>
-  <p>Daarom loop ik van 1 t/m 25 december elke dag het aantal km van de dag: 1 km op 1 december, 25 km op
-    25 december, samen 325 km. Het is ook een uitdaging voor mezelf, en ik zie er eerlijk gezegd een beetje tegenop.
-    Elke km telt.</p>
-  <p class="signature">{{ owner }}</p>
-</header>
-
-{% include "_progress.html" %}
-
-<section class="card" aria-labelledby="toezeggen">
-  <h2 id="toezeggen">Doe een toezegging</h2>
-  <p>Zeg hier toe wat je wilt geven, per km of een vast bedrag. Na afloop krijg je (als je dat wilt) één bericht met
-    jouw bedrag, en doneer je zelf op de pagina van {{ charity }}. Het geld gaat nooit via mij of deze site.</p>
-
-  {% if errors %}
-  <div class="errors" role="alert">
-    <p><strong>Nog niet gelukt.</strong> Kijk de gemarkeerde velden na.</p>
-  </div>
-  {% endif %}
-
-  <form method="post" action="/toezeggen" novalidate>
-    <div class="field {% if errors.display_name %}invalid{% endif %}">
-      <label for="display_name">Naam of bijnaam</label>
-      <input id="display_name" name="display_name" maxlength="60" autocomplete="nickname" value="{{ form.display_name or '' }}"
-        {% if errors.display_name %}aria-invalid="true" aria-describedby="err-name"{% endif %}>
-      {% if errors.display_name %}<p class="error" id="err-name">{{ errors.display_name }}</p>{% endif %}
-      <label class="check"><input type="checkbox" name="anonymous" value="1" {% if form.anonymous %}checked{% endif %}>
-        Anoniem: toon mijn naam niet op de muur van steun</label>
-    </div>
-
-    <fieldset class="field {% if errors.type %}invalid{% endif %}">
-      <legend>Hoe wil je steunen?</legend>
-      <label class="check"><input type="radio" name="type" value="per_km" {% if form.type != 'fixed' %}checked{% endif %}> Per km</label>
-      <label class="check"><input type="radio" name="type" value="fixed" {% if form.type == 'fixed' %}checked{% endif %}> Vast bedrag</label>
-      {% if errors.type %}<p class="error">{{ errors.type }}</p>{% endif %}
-    </fieldset>
-
-    <div class="group" data-for="per_km">
-      <div class="field {% if errors.per_km_amount %}invalid{% endif %}">
-        <label for="per_km_amount">Bedrag per km (€)</label>
-        <input id="per_km_amount" name="per_km_amount" inputmode="decimal" placeholder="0,10" value="{{ form.per_km_amount or '' }}"
-          {% if errors.per_km_amount %}aria-invalid="true" aria-describedby="err-perkm"{% endif %}>
-        {% if errors.per_km_amount %}<p class="error" id="err-perkm">{{ errors.per_km_amount }}</p>{% endif %}
-        <p class="hint">Bij 325 km: € 0,05 = € 16,25 · € 0,10 = € 32,50 · € 0,25 = € 81,25 · € 1 = € 325.</p>
-      </div>
-      <div class="field {% if errors.max_amount %}invalid{% endif %}">
-        <label for="max_amount">Maximum (€, optioneel)</label>
-        <input id="max_amount" name="max_amount" inputmode="decimal" placeholder="bijv. 25" value="{{ form.max_amount or '' }}"
-          {% if errors.max_amount %}aria-invalid="true" aria-describedby="err-max"{% endif %}>
-        {% if errors.max_amount %}<p class="error" id="err-max">{{ errors.max_amount }}</p>{% endif %}
-      </div>
-    </div>
-
-    <div class="group" data-for="fixed">
-      <div class="field {% if errors.fixed_amount %}invalid{% endif %}">
-        <label for="fixed_amount">Vast bedrag (€)</label>
-        <input id="fixed_amount" name="fixed_amount" inputmode="decimal" placeholder="20" value="{{ form.fixed_amount or '' }}"
-          {% if errors.fixed_amount %}aria-invalid="true" aria-describedby="err-fixed"{% endif %}>
-        {% if errors.fixed_amount %}<p class="error" id="err-fixed">{{ errors.fixed_amount }}</p>{% endif %}
-      </div>
-    </div>
-
-    <div class="field {% if errors.contact %}invalid{% endif %}">
-      <label for="contact">E-mail of telefoon (optioneel)</label>
-      <input id="contact" name="contact" maxlength="254" autocomplete="email" value="{{ form.contact or '' }}"
-        {% if errors.contact %}aria-invalid="true" aria-describedby="err-contact"{% endif %}>
-      {% if errors.contact %}<p class="error" id="err-contact">{{ errors.contact }}</p>{% endif %}
-      <label class="check"><input type="checkbox" name="consent" value="1" {% if form.consent %}checked{% endif %}>
-        Mag ik je na afloop één keer contact opnemen om te bedanken en te herinneren?</label>
-      <p class="hint">Alleen {{ owner }} ziet dit. Zonder vinkje bewaar ik geen contactgegevens.</p>
-    </div>
-
-    <div class="field {% if errors.message %}invalid{% endif %}">
-      <label for="message">Bericht voor {{ owner }} (optioneel)</label>
-      <textarea id="message" name="message" maxlength="500" rows="3">{{ form.message or '' }}</textarea>
-      {% if errors.message %}<p class="error">{{ errors.message }}</p>{% endif %}
-      <p class="hint">Alleen {{ owner }} leest dit; het komt niet op de site.</p>
-    </div>
-
-    <div class="hp" aria-hidden="true">
-      <label for="website">Laat dit veld leeg</label>
-      <input id="website" name="website" tabindex="-1" autocomplete="off">
-    </div>
-
-    <button type="submit">Toezeggen</button>
-    <p class="hint">Een toezegging is geen betaling. Lees de <a href="/privacy">privacytekst</a>.</p>
-  </form>
-</section>
-
-<section class="card" aria-labelledby="muur">
-  <h2 id="muur">Muur van steun</h2>
-  {% if supporters == 0 %}
-    <p>Nog niemand. Jij kunt de eerste zijn.</p>
-  {% else %}
-    <ul class="wall">
-      {% for name in wall %}<li>{{ name }}</li>{% endfor %}
-      {% if anonymous %}<li class="anon">en {{ anonymous }} anoniem</li>{% endif %}
+<section class="hero">
+  <div class="container hero-inner">
+    <div class="hero-text">
+    <p class="eyebrow">{{ t('eyebrow') }}</p>
+    <h1>{{ t('hero_title') }}</h1>
+    <p class="lead">{{ t('hero_lead') }}</p>
+    <ul class="hero-stats">
+      <li><strong>{{ days }}</strong> {{ t('stat_days') }}</li>
+      <li><strong>{{ planned_km }}</strong> {{ t('stat_km') }}</li>
+      <li><strong>{{ supporters }}</strong> {{ t('stat_supporters') }}</li>
     </ul>
-    <p class="hint">Op volgorde van aanmelding, zonder bedragen.</p>
-  {% endif %}
+    <div class="hero-actions">
+      <a class="button button-light" href="#toezeggen">{{ t('hero_cta') }}</a>
+      <a class="button button-ghost" href="#doneren">{{ t('donate_title') }}</a>
+    </div>
+    </div>
+    <div class="hero-glance" aria-hidden="true">
+      <p class="glance-day">{% if day == 0 %}{{ t('before_start', date=start_text) }}{% elif day > days %}{{ t('finished') }}{% else %}{{ t('day_of', day=day, days=days) }}{% endif %}</p>
+      <p class="glance-km"><strong>{{ fmt_km(km_walked) }}</strong> / {{ planned_km }} km</p>
+      <progress max="{{ planned_km }}" value="{{ km_walked }}"></progress>
+      <div class="glance-row">
+        <div><p class="glance-label">{{ t('pledged_label') }}</p><p class="glance-value">{{ fmt(pledged_now) }}</p></div>
+        <div><p class="glance-label">{{ t('donated_label') }}</p><p class="glance-value">{{ fmt(donated_cents) }}</p></div>
+      </div>
+    </div>
+  </div>
 </section>
+
+<div class="container layout">
+  <div class="main-col">
+    {% include "_progress.html" %}
+
+    <section class="card story" aria-labelledby="waarom">
+      <h2 id="waarom">{{ t('story_title') }}</h2>
+      <p>{{ t('story_p1') }}</p>
+      <p>{{ t('story_p2') }}</p>
+      <p class="signature">{{ owner }}</p>
+    </section>
+
+    <section class="card" id="toezeggen" aria-labelledby="toezeggen-title">
+      <h2 id="toezeggen-title">{{ t('form_title') }}</h2>
+      <p>{{ t('form_intro') }}</p>
+
+      {% if errors %}
+      <div class="errors" role="alert">
+        <p><strong>{{ t('errors_title') }}</strong> {{ t('errors_body') }}</p>
+      </div>
+      {% endif %}
+
+      <form method="post" action="/toezeggen" id="pledge-form" novalidate
+        data-locale="{{ 'nl-NL' if lang == 'nl' else 'en-GB' }}" data-km="{{ planned_km }}"
+        data-tpl-per-km="{{ t('summary_per_km') }}" data-tpl-capped="{{ t('summary_capped') }}"
+        data-tpl-fixed="{{ t('summary_fixed') }}" data-tpl-empty="{{ t('summary_empty') }}">
+        <input type="hidden" name="lang" value="{{ lang }}">
+
+        <fieldset class="step {% if errors.type %}invalid{% endif %}">
+          <legend><span class="step-n" aria-hidden="true">1</span> {{ t('step_type') }}</legend>
+          <div class="choice-cards">
+            <label class="choice-card">
+              <input type="radio" name="type" value="per_km" {% if form.type != 'fixed' %}checked{% endif %}>
+              <span class="choice-icon" aria-hidden="true">🏃</span>
+              <span class="choice-title">{{ t('type_per_km') }}</span>
+              <span class="choice-desc">{{ t('type_per_km_desc') }}</span>
+            </label>
+            <label class="choice-card">
+              <input type="radio" name="type" value="fixed" {% if form.type == 'fixed' %}checked{% endif %}>
+              <span class="choice-icon" aria-hidden="true">🎁</span>
+              <span class="choice-title">{{ t('type_fixed') }}</span>
+              <span class="choice-desc">{{ t('type_fixed_desc') }}</span>
+            </label>
+          </div>
+          {% if errors.type %}<p class="error">{{ errors.type }}</p>{% endif %}
+        </fieldset>
+
+        <fieldset class="step">
+          <legend><span class="step-n" aria-hidden="true">2</span> {{ t('step_amount') }}</legend>
+
+          <div class="group" data-for="per_km">
+            <div class="field {% if errors.per_km_amount %}invalid{% endif %}">
+              <p class="field-label" id="perkm-label">{{ t('per_km_label') }}</p>
+              <div class="chips" role="group" aria-labelledby="perkm-label">
+                {% for c in per_km_choices %}
+                <button type="button" class="chip" data-fill="per_km_amount" data-value="{{ c.value }}" aria-pressed="false">
+                  <span class="chip-main">{{ c.label }}</span><span class="chip-sub">{{ t('chip_total', total=c.total) }}</span>
+                </button>
+                {% endfor %}
+              </div>
+              <label for="per_km_amount" class="sub-label">{{ t('other_amount') }}</label>
+              <div class="input-money">
+                <span aria-hidden="true">€</span>
+                <input id="per_km_amount" name="per_km_amount" inputmode="decimal" autocomplete="off" placeholder="{{ per_km_choices[1].value }}" value="{{ form.per_km_amount or '' }}"
+                  {% if errors.per_km_amount %}aria-invalid="true" aria-describedby="err-perkm"{% endif %}>
+                <span class="unit">/ km</span>
+              </div>
+              {% if errors.per_km_amount %}<p class="error" id="err-perkm">{{ errors.per_km_amount }}</p>{% endif %}
+            </div>
+            <div class="field {% if errors.max_amount %}invalid{% endif %}">
+              <label for="max_amount">{{ t('max_label') }}</label>
+              <div class="input-money">
+                <span aria-hidden="true">€</span>
+                <input id="max_amount" name="max_amount" inputmode="decimal" autocomplete="off" placeholder="25" value="{{ form.max_amount or '' }}"
+                  aria-describedby="hint-max{% if errors.max_amount %} err-max{% endif %}" {% if errors.max_amount %}aria-invalid="true"{% endif %}>
+              </div>
+              <p class="hint" id="hint-max">{{ t('max_hint') }}</p>
+              {% if errors.max_amount %}<p class="error" id="err-max">{{ errors.max_amount }}</p>{% endif %}
+            </div>
+          </div>
+
+          <div class="group" data-for="fixed">
+            <div class="field {% if errors.fixed_amount %}invalid{% endif %}">
+              <p class="field-label" id="fixed-label">{{ t('fixed_label') }}</p>
+              <div class="chips" role="group" aria-labelledby="fixed-label">
+                {% for c in fixed_choices %}
+                <button type="button" class="chip" data-fill="fixed_amount" data-value="{{ c.value }}" aria-pressed="false">
+                  <span class="chip-main">{{ c.label }}</span><span class="chip-sub">{{ t('chip_per_km', per_km=c.per_km) }}</span>
+                </button>
+                {% endfor %}
+              </div>
+              <label for="fixed_amount" class="sub-label">{{ t('other_amount') }}</label>
+              <div class="input-money">
+                <span aria-hidden="true">€</span>
+                <input id="fixed_amount" name="fixed_amount" inputmode="decimal" autocomplete="off" placeholder="{{ fixed_choices[1].value }}" value="{{ form.fixed_amount or '' }}"
+                  {% if errors.fixed_amount %}aria-invalid="true" aria-describedby="err-fixed"{% endif %}>
+              </div>
+              {% if errors.fixed_amount %}<p class="error" id="err-fixed">{{ errors.fixed_amount }}</p>{% endif %}
+            </div>
+          </div>
+
+          <p class="summary" id="summary" aria-live="polite" hidden></p>
+        </fieldset>
+
+        <fieldset class="step">
+          <legend><span class="step-n" aria-hidden="true">3</span> {{ t('step_you') }}</legend>
+          <div class="field {% if errors.display_name %}invalid{% endif %}">
+            <label for="display_name">{{ t('name_label') }}</label>
+            <input id="display_name" name="display_name" maxlength="60" autocomplete="nickname" value="{{ form.display_name or '' }}"
+              aria-describedby="hint-name{% if errors.display_name %} err-name{% endif %}" {% if errors.display_name %}aria-invalid="true"{% endif %}>
+            <p class="hint" id="hint-name">{{ t('name_hint') }}</p>
+            {% if errors.display_name %}<p class="error" id="err-name">{{ errors.display_name }}</p>{% endif %}
+            <label class="check"><input type="checkbox" name="anonymous" value="1" {% if form.anonymous %}checked{% endif %}>
+              <span>{{ t('anonymous') }}</span></label>
+          </div>
+
+          <div class="field {% if errors.contact %}invalid{% endif %}">
+            <label for="contact">{{ t('contact_label') }}</label>
+            <input id="contact" name="contact" maxlength="254" autocomplete="email" value="{{ form.contact or '' }}"
+              aria-describedby="hint-contact{% if errors.contact %} err-contact{% endif %}" {% if errors.contact %}aria-invalid="true"{% endif %}>
+            {% if errors.contact %}<p class="error" id="err-contact">{{ errors.contact }}</p>{% endif %}
+            <label class="check"><input type="checkbox" name="consent" value="1" {% if form.consent %}checked{% endif %}>
+              <span>{{ t('consent') }}</span></label>
+            <p class="hint" id="hint-contact">{{ t('contact_hint') }}</p>
+          </div>
+
+          <div class="field {% if errors.message %}invalid{% endif %}">
+            <label for="message">{{ t('message_label') }}</label>
+            <textarea id="message" name="message" maxlength="500" rows="3" aria-describedby="hint-message">{{ form.message or '' }}</textarea>
+            {% if errors.message %}<p class="error">{{ errors.message }}</p>{% endif %}
+            <p class="hint" id="hint-message">{{ t('message_hint') }}</p>
+          </div>
+
+          <div class="hp" aria-hidden="true">
+            <label for="website">{{ t('honeypot') }}</label>
+            <input id="website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+        </fieldset>
+
+        <div class="submit-row">
+          <button type="submit" class="button button-big">{{ t('submit') }}</button>
+          <p class="hint">{{ t('submit_note') }} <a href="{{ paths.privacy }}">{{ t('privacy_link') }}</a>.</p>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <aside class="side-col">
+    <div class="side-sticky">
+      {% include "_donate.html" %}
+
+      <section class="card" aria-labelledby="muur">
+        <h2 id="muur">{{ t('wall_title') }} <span class="count">{{ supporters }}</span></h2>
+        {% if supporters == 0 %}
+          <p class="muted">{{ t('wall_empty') }}</p>
+        {% else %}
+          <ul class="wall">
+            {% for name in wall %}<li>{{ name }}</li>{% endfor %}
+            {% if anonymous %}<li class="anon">{{ t('wall_anon', n=anonymous) }}</li>{% endif %}
+          </ul>
+          <p class="hint">{{ t('wall_note') }}</p>
+        {% endif %}
+      </section>
+
+      <section class="card" aria-labelledby="delen">
+        <h2 id="delen">{{ t('share_title') }}</h2>
+        <p class="muted">{{ t('share_body') }}</p>
+        <div class="share">
+          <input id="share-url" readonly value="{{ paths.home }}" aria-label="{{ t('share_title') }}">
+          <button type="button" class="button button-secondary" id="share-btn" data-copied="{{ t('share_copied') }}">{{ t('share_copy') }}</button>
+        </div>
+      </section>
+    </div>
+  </aside>
+</div>
 {% endblock %}
 {% block scripts %}<script src="/static/form.js" defer></script>{% endblock %}

@@ -1,27 +1,47 @@
 <section class="card" aria-labelledby="voortgang">
-  <h2 id="voortgang">Voortgang</h2>
-  {% if day == 0 %}
-    <p class="big">Start op 1 december</p>
-  {% elif day > days %}
-    <p class="big">Klaar: {{ days }} dagen</p>
-  {% else %}
-    <p class="big">Dag {{ day }} van {{ days }}</p>
-    <p>Vandaag op het programma: {{ day }} km{% if km_today is not none %}, gelopen: {{ km_today|km }} km{% endif %}.</p>
+  <div class="card-head">
+    <h2 id="voortgang">{{ t('progress_title') }}</h2>
+    <p class="status-pill">
+      {% if day == 0 %}{{ t('before_start', date=start_text) }}
+      {% elif day > days %}{{ t('finished') }}
+      {% else %}{{ t('day_of', day=day, days=days) }}{% endif %}
+    </p>
+  </div>
+  {% if 0 < day <= days %}
+  <p class="today-line">{{ t('today_plan', km=day) }}{% if km_today is not none %} · {{ t('today_done', km=fmt_km(km_today)) }}{% endif %}</p>
   {% endif %}
-  <progress max="{{ planned_km }}" value="{{ km_walked }}" aria-label="{{ km_walked|km }} van {{ planned_km }} km gelopen"></progress>
-  <p><strong>{{ km_walked|km }}</strong> van {{ planned_km }} km gelopen</p>
+
+  <ol class="calendar" aria-label="{{ t('calendar_label') }}">
+    {% for tile in calendar %}
+    <li class="tile tile-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}">
+      <span class="tile-day">{{ tile.day }}</span>
+      <span class="tile-km">{{ tile.day }} km</span>
+      <span class="visually-hidden">{% if tile.state == 'done' %}{{ t('tile_done') }}{% elif tile.state == 'partial' %}{{ t('tile_partial') }}: {{ fmt_km(tile.km) }} km{% elif tile.is_today %}{{ t('tile_today') }}{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ol>
+  <ul class="legend" aria-hidden="true">
+    <li><span class="swatch swatch-done"></span>{{ t('legend_done') }}</li>
+    <li><span class="swatch swatch-partial"></span>{{ t('legend_partial') }}</li>
+    <li><span class="swatch swatch-today"></span>{{ t('legend_today') }}</li>
+  </ul>
+
+  <div class="km-bar">
+    <progress max="{{ planned_km }}" value="{{ km_walked }}" aria-label="{{ t('km_of', walked=fmt_km(km_walked), total=planned_km) }}"></progress>
+    <p><strong>{{ fmt_km(km_walked) }}</strong> / {{ planned_km }} km</p>
+  </div>
 
   <div class="numbers">
-    <div>
-      <p class="label">Toegezegd</p>
-      <p class="value">{{ pledged_now|euro }}</p>
-      <p class="hint">nu, bij {{ km_walked|km }} km · {{ pledged_potential|euro }} als ik alle {{ planned_km }} km haal</p>
+    <div class="number">
+      <p class="label">{{ t('pledged_label') }}</p>
+      <p class="value">{{ fmt(pledged_now) }}</p>
+      <p class="hint">{{ t('pledged_hint', km=fmt_km(km_walked), potential=fmt(pledged_potential), total=planned_km) }}</p>
     </div>
-    <div>
-      <p class="label">Gedoneerd bij {{ charity }}</p>
-      <p class="value">{{ donated_cents|euro }}</p>
-      <p class="hint">handmatig bijgewerkt{% if action_page_url %} · <a href="{{ action_page_url }}" rel="noopener">actiepagina</a>{% endif %}</p>
+    <div class="number number-donated">
+      <p class="label">{{ t('donated_label') }}</p>
+      <p class="value">{{ fmt(donated_cents) }}</p>
+      <p class="hint">{{ t('donated_hint') }}</p>
     </div>
   </div>
-  <p class="hint">Toezeggingen zijn beloftes, geen betalingen. Na 25 december doneert iedereen zelf op de actiepagina.</p>
+  <p class="hint">{{ t('promise_note') }}</p>
 </section>

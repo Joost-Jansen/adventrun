@@ -2,7 +2,7 @@
 
 from datetime import UTC, date, datetime
 
-from sqlalchemy import Boolean, Date, DateTime, Integer, Numeric, String, Text, create_engine
+from sqlalchemy import Boolean, Date, DateTime, Integer, Numeric, String, Text, create_engine, inspect, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 PLEDGE_TYPES = ("per_km", "fixed")
@@ -34,6 +34,8 @@ class Pledge(Base):
     message: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(10), default="pledged")
     admin_note: Mapped[str] = mapped_column(Text, default="")
+    # The language the pledge was made in ("nl" | "en"), for the message afterwards.
+    lang: Mapped[str] = mapped_column(String(2), default="nl", server_default="nl")
 
 
 class Progress(Base):
@@ -55,10 +57,19 @@ class SiteSettings(Base):
     total_planned_km: Mapped[int] = mapped_column(Integer, default=325)
 
 
+def _migrate(engine) -> None:
+    """Columns added after the first deploy: create_all does not add them to an existing table."""
+    columns = {c["name"] for c in inspect(engine).get_columns("pledges")}
+    if "lang" not in columns:
+        with engine.begin() as conn:
+            conn.execute(text("ALTER TABLE pledges ADD COLUMN lang VARCHAR(2) NOT NULL DEFAULT 'nl'"))
+
+
 def make_sessionmaker(database_url: str) -> sessionmaker:
     kwargs = {"connect_args": {"check_same_thread": False}} if database_url.startswith("sqlite") else {"pool_pre_ping": True}
     engine = create_engine(database_url, **kwargs)
     Base.metadata.create_all(engine)
+    _migrate(engine)
     factory = sessionmaker(engine, expire_on_commit=False)
     with factory() as s:
         if s.get(SiteSettings, 1) is None:

@@ -52,19 +52,22 @@ def challenge_day(today: date, start: date, days: int) -> int:
     return min(n, days + 1)
 
 
-def euro(cents: int) -> str:
-    """€ 1.234,56 in Dutch notation; whole euros without decimals."""
+def euro(cents: int, lang: str = "nl") -> str:
+    """Dutch: € 1.234,56; English: €1,234.56. Whole euros without decimals."""
     sign = "-" if cents < 0 else ""
-    cents = abs(cents)
-    whole, rest = divmod(cents, 100)
-    whole_s = f"{whole:,}".replace(",", ".")
-    return f"{sign}€\u00a0{whole_s}" if rest == 0 else f"{sign}€\u00a0{whole_s},{rest:02d}"
+    whole, rest = divmod(abs(cents), 100)
+    thousands, decimal = (".", ",") if lang == "nl" else (",", ".")
+    whole_s = f"{whole:,}".replace(",", thousands)
+    space = "\u00a0" if lang == "nl" else ""
+    return f"{sign}€{space}{whole_s}" if rest == 0 else f"{sign}€{space}{whole_s}{decimal}{rest:02d}"
 
 
-def km_text(km) -> str:
+def km_text(km, lang: str = "nl") -> str:
     d = Decimal(str(km)).normalize()
+    if d == d.to_integral():
+        d = d.quantize(Decimal(1))
     s = f"{d:f}"
-    return s.replace(".", ",")
+    return s.replace(".", ",") if lang == "nl" else s
 
 
 def parse_euro_cents(text: str) -> int | None:

@@ -2,7 +2,7 @@
 {% block title %}Beheer{% endblock %}
 {% block robots %}noindex, nofollow{% endblock %}
 {% block content %}
-<section class="card narrow">
+<div class="container narrow-page"><section class="card">
   <h1>Beheer</h1>
   {% if not enabled %}
     <p>Beheer staat uit: zet de omgevingsvariabele <code>ADMIN_PASSWORD</code>.</p>
@@ -17,5 +17,5 @@
     <button type="submit">Inloggen</button>
   </form>
   {% endif %}
-</section>
+</section></div>
 {% endblock %}
