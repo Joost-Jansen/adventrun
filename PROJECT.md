@@ -293,3 +293,4 @@ Context: de MCP-tools van de tracker kunnen nu alleen het **actieve** plan tonen
 - 2026-10-26: deurtjes van de kalender weer even groot (klassieke 5x5): de breedte per km klopte alleen binnen een rij, waardoor dag 10 kleiner leek dan dag 5. De groei per dag laat de grafiek zien.
 - 2026-10-26: elk deurtje toont nu "N km"; achter het deurtje staat wat die dag oplevert aan toezeggingen per km (ook als dat nog € 0 is).
 - 2026-10-26: tekst over het beslismoment op 14 december van de site gehaald (hoort in het schema, niet bij de supporters).
+- 2026-10-26: elk deurtje toont klein de datum ("1 dec") boven "1 km"; de stip voor bijzondere dagen alleen op bredere schermen.

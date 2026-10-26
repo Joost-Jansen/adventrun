@@ -154,11 +154,10 @@ def test_heaviness_section(client):
     assert "Waarom het Rode Kruis" in body
 
 
-def test_doors_show_km_and_open_onto_the_amount(client):
+def test_doors_show_date_and_km_and_open_onto_the_amount(client):
     post(client, per_km_amount="0,50")
     body = client.get("/").text
-    # day 25: 25 km on the door, €12,50 behind it (€0,50 × 25 km)
-    assert (
-        '<span class="door-inside" aria-hidden="true">€ 12,50</span><span class="door-front" aria-hidden="true">25<span class="door-unit">&nbsp;km</span></span>'
-        in body
-    )
+    # day 25: "25 dec" and "25 km" on the door, €12,50 behind it (€0,50 × 25 km)
+    assert '<span class="door-inside" aria-hidden="true">€\u00a012,50</span>' in body
+    assert '<span class="door-date">25 dec</span><span class="door-km">25<span class="door-unit">&nbsp;km</span></span>' in body
+    assert '<span class="door-date">25 Dec</span>' in client.get("/en").text

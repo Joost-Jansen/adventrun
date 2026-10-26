@@ -25,7 +25,7 @@
               ~ ((' · ' ~ t('door_worth', amount=fmt(dv[1]))) if dv[1] else '') %}
           <span role="listitem" tabindex="0" class="door d{{ tile.day }} door-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}{% if tile.day in noted %} is-noted{% endif %}"
             data-detail="{{ detail }}"
-            aria-label="{{ detail }}{% if tile.state == 'done' %}, {{ t('tile_done') }}{% elif tile.state == 'partial' %}, {{ t('tile_partial') }}{% elif tile.is_today %}, {{ t('tile_today') }}{% endif %}"><span class="door-inside" aria-hidden="true">{{ fmt(dv[1]) }}</span><span class="door-front" aria-hidden="true">{{ tile.day }}<span class="door-unit">&nbsp;km</span></span></span>
+            aria-label="{{ detail }}{% if tile.state == 'done' %}, {{ t('tile_done') }}{% elif tile.state == 'partial' %}, {{ t('tile_partial') }}{% elif tile.is_today %}, {{ t('tile_today') }}{% endif %}"><span class="door-inside" aria-hidden="true">{{ fmt(dv[1]) }}</span><span class="door-front" aria-hidden="true"><span class="door-date">{{ fmt_date_short(tile.date) }}</span><span class="door-km">{{ tile.day }}<span class="door-unit">&nbsp;km</span></span></span></span>
           {% endfor %}
         </div>
         {% endfor %}

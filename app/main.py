@@ -20,7 +20,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from .calc import challenge_day, euro, km_text, parse_euro_cents, parse_km, pledge_amount_cents, pledged_totals
 from .config import Settings, load_settings
 from .db import PLEDGE_STATUSES, Pledge, Progress, SiteSettings, make_sessionmaker
-from .i18n import LANGS, PATHS, format_date, format_range, translator
+from .i18n import LANGS, PATHS, format_date, format_date_short, format_range, translator
 from .messages import STATUS_LABELS, describe, export_csv, terms
 from .security import RateLimiter, check_csrf, check_origin, client_ip, csrf_token, password_ok, security_headers
 
@@ -204,6 +204,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "fmt": lambda cents: euro(cents, lang),
             "fmt_km": lambda km: km_text(km, lang),
             "fmt_date": lambda d: format_date(d, lang),
+            "fmt_date_short": lambda d: format_date_short(d, lang),
         }
         if name == "home":
             ctx |= amount_choices(ctx["planned_km"], lang)

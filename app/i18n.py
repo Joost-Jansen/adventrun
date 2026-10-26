@@ -347,6 +347,17 @@ def format_date(d: date, lang: str) -> str:
     return f"{d.day} {MONTHS[lang][d.month - 1]}"
 
 
+MONTHS_SHORT = {
+    "nl": ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"],
+    "en": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+}
+
+
+def format_date_short(d: date, lang: str) -> str:
+    """'1 dec' / '1 Dec': small enough for a calendar door."""
+    return f"{d.day} {MONTHS_SHORT[lang][d.month - 1]}"
+
+
 def format_range(d1: date, d2: date, lang: str) -> str:
     """'1–7 december'; across months '28 november – 4 december'."""
     if d1.month == d2.month:
