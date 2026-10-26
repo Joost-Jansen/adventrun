@@ -75,6 +75,29 @@ def periods(pledges, start: date, days: int, planned_km: int, lang: str) -> list
     return rows
 
 
+def day_values(pledges, days: int, planned_km: int) -> list[tuple[int, int]]:
+    """Per challenge day: (km run by the end of that day if every day is run in full, what the per-km pledges bring in
+    on that day). Like the receipt rows, each day's value is the difference of two cumulative sums."""
+    per_km = [terms(p) for p in pledges if p.type == "per_km"]
+    out, before = [], 0
+    for n in range(1, days + 1):
+        cum = min(n * (n + 1) // 2, planned_km)
+        after = sum(pledge_amount_cents(p, cum, planned_km) for p in per_km)
+        out.append((cum, after - before))
+        before = after
+    return out
+
+
+HALF_MARATHON_KM = 21.1
+
+
+def heaviness(days: int) -> dict:
+    """The last seven days of the challenge: total and average per day, set against a half marathon."""
+    last = list(range(max(1, days - 6), days + 1))
+    total = sum(last)
+    return {"last_days": len(last), "last_first": last[0], "last_km": total, "last_avg": total / len(last), "half": HALF_MARATHON_KM}
+
+
 def calendar_rows(tiles: list[dict], per_row: int = 5) -> list[list[dict]]:
     return [tiles[i : i + per_row] for i in range(0, len(tiles), per_row)]
 
@@ -152,6 +175,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "start": settings.challenge_start,
             "start_text": format_date(settings.challenge_start, lang),
             "calendar": (tiles := calendar(settings.challenge_start, settings.challenge_days, t, km_by_date)),
+            "day_values": day_values(pledges, settings.challenge_days, planned),
+            "heavy": heaviness(settings.challenge_days),
             "calendar_rows": calendar_rows(tiles),
             "periods": periods(pledges, settings.challenge_start, settings.challenge_days, planned, lang),
             "fixed_total": sum(p.amount_cents for p in pledges if p.type == "fixed"),

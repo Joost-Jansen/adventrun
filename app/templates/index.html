@@ -14,16 +14,23 @@
       </div>
       <p class="lead" data-load>{{ t('hero_lead') }}</p>
 
-      <div class="doors" role="list" aria-label="{{ t('calendar_label') }}">
+      {% set noted = [1, 14, 15, 19, 21, 25] %}
+      <div class="doors" role="list" aria-label="{{ t('calendar_label') }}" data-detail-target="door-detail">
         {% for row in calendar_rows %}
         <div class="door-row" role="presentation">
           {% for tile in row %}
-          <span role="listitem" class="door d{{ tile.day }} door-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}"
-            aria-label="{{ t('tile_label', date=fmt_date(tile.date), km=tile.day) }}{% if tile.state == 'done' %}, {{ t('tile_done') }}{% elif tile.state == 'partial' %}, {{ t('tile_partial') }}{% elif tile.is_today %}, {{ t('tile_today') }}{% endif %}">{{ tile.day }}</span>
+          {% set dv = day_values[tile.day - 1] %}
+          {% set detail = t('door_detail', date=fmt_date(tile.date), km=tile.day, cum=dv[0])
+              ~ ((' · ' ~ t('note_' ~ tile.day)) if tile.day in noted else '')
+              ~ ((' · ' ~ t('door_worth', amount=fmt(dv[1]))) if dv[1] else '') %}
+          <span role="listitem" tabindex="0" class="door d{{ tile.day }} door-{{ tile.state }}{% if tile.is_today %} is-today{% endif %}{% if tile.day in noted %} is-noted{% endif %}"
+            data-detail="{{ detail }}"
+            aria-label="{{ detail }}{% if tile.state == 'done' %}, {{ t('tile_done') }}{% elif tile.state == 'partial' %}, {{ t('tile_partial') }}{% elif tile.is_today %}, {{ t('tile_today') }}{% endif %}"><span class="door-inside" aria-hidden="true">{{ tile.day }} km</span><span class="door-front" aria-hidden="true">{{ tile.day }}</span></span>
           {% endfor %}
         </div>
         {% endfor %}
       </div>
+      <p class="door-detail" id="door-detail" aria-live="polite" data-default="{{ t('door_hint') }}">{{ t('door_hint') }}</p>
       <p class="status">
         {% if day == 0 %}{{ t('before_start', date=start_text) }}{% elif day > days %}{{ t('finished') }}{% else %}{{ t('day_of', day=day, days=days) }}{% endif %}
         · {{ t('km_line', walked=fmt_km(km_walked), total=planned_km) }}
@@ -74,11 +81,48 @@
   </div>
 </section>
 
+{# ---- How heavy it gets: km per day against a half marathon ---- #}
+<section class="section heavy-section" id="zwaarte" aria-labelledby="heavy-title">
+  <div class="frame heavy-grid">
+    <div class="heavy-text">
+      <h2 id="heavy-title" class="head" data-reveal>{{ t('heavy_title') }}</h2>
+      <p class="lead" data-reveal>{{ t('heavy_lead', n=heavy.last_days, km=heavy.last_km, avg=fmt_km(heavy.last_avg)) }}</p>
+      <div class="heavy-stats" data-reveal>
+        <p><span class="stat-num">{{ heavy.last_km }}</span><span class="stat-label">{{ t('heavy_stat_last', n=heavy.last_days) }}</span></p>
+        <p><span class="stat-num">{{ fmt_km(heavy.last_avg) }}</span><span class="stat-label">{{ t('heavy_stat_avg', half=fmt_km(heavy.half)) }}</span></p>
+        <p><span class="stat-num">3×</span><span class="stat-label">{{ t('heavy_stat_times') }}</span></p>
+      </div>
+    </div>
+
+    <figure class="chart" data-reveal>
+      <div class="chart-plot" aria-hidden="true" data-detail-target="chart-detail">
+        <div class="chart-ref" aria-hidden="true"><span>{{ t('chart_half', half=fmt_km(heavy.half)) }}</span></div>
+        {% for tile in calendar %}
+        <span class="bar h{{ tile.day }}{% if tile.day >= heavy.last_first %} is-heavy{% endif %}"
+          data-detail="{{ t('chart_bar', date=fmt_date(tile.date), km=tile.day) }}{% if tile.day in noted %} · {{ t('note_' ~ tile.day) }}{% endif %}">{% if loop.last %}<span class="bar-label">{{ tile.day }} km</span>{% endif %}</span>
+        {% endfor %}
+      </div>
+      <div class="chart-axis" aria-hidden="true"><span>{{ t('chart_first') }}</span><span>{{ t('chart_last') }}</span></div>
+      <figcaption class="door-detail" id="chart-detail" data-default="{{ t('chart_hint') }}">{{ t('chart_hint') }}</figcaption>
+      <div class="visually-hidden"><table>
+        <caption>{{ t('chart_label') }}</caption>
+        <thead><tr><th scope="col">{{ t('chart_th_day') }}</th><th scope="col">{{ t('chart_th_km') }}</th></tr></thead>
+        <tbody>{% for tile in calendar %}<tr><td>{{ fmt_date(tile.date) }}</td><td>{{ tile.day }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+    </figure>
+  </div>
+</section>
+
 {# ---- The reply card: the pledge form, with the wall of support beside it ---- #}
 <section class="section reply-section" id="toezeggen" aria-labelledby="form-title">
   <div class="frame reply-grid">
     <div class="reply-aside">
-      <p class="lead" data-reveal>{{ t('why_short') }}</p>
+      <div class="why" data-reveal>
+        <h2 class="lead-head">{{ t('why_title') }}</h2>
+        <p>{{ t('why_p1') }}</p>
+        <p>{{ t('why_p2') }}</p>
+        <p>{{ t('why_p3') }}</p>
+      </div>
       <p data-reveal>{{ t('reply_aside') }}</p>
       <div class="guest-card" id="muur" data-reveal>
         <h2 class="lead-head">{{ t('wall_title') }} <span class="count">{{ supporters }}</span></h2>
@@ -261,4 +305,4 @@
   </div>
 </footer>
 {% endblock %}
-{% block scripts %}<script src="/static/form.js" defer></script><script src="/static/motion.js" defer></script>{% endblock %}
+{% block scripts %}<script src="/static/form.js" defer></script><script src="/static/detail.js" defer></script><script src="/static/motion.js" defer></script>{% endblock %}

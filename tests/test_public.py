@@ -135,3 +135,20 @@ def test_average_per_km(client):
     assert '<span class="stat-num">€\u00a01,20</span><span class="stat-label">gemiddeld per km</span>' in body  # 390 / 325
     assert '<span class="stat-num">2</span><span class="stat-label">toezeggingen</span>' in body
     assert "per km on average" in client.get("/en").text
+
+
+def test_calendar_doors_carry_their_details(client):
+    post(client, per_km_amount="1")
+    body = client.get("/").text
+    # day 21: 21 km, 231 km in total, the shortest day, and what €1/km brings in that day
+    assert 'data-detail="21 december · 21 km · samen 231 km · Kortste dag van het jaar · waard € 21 aan toezeggingen per km"' in body
+    assert "21 December · 21 km · 231 km in total · Shortest day of the year" in client.get("/en").text
+
+
+def test_heaviness_section(client):
+    body = client.get("/").text
+    assert "In de laatste 7 dagen loop ik 154 km: gemiddeld 22 km per dag, meer dan een halve marathon" in body
+    assert "halve marathon · 21,1 km" in body
+    assert body.count('class="bar h') == 25
+    assert body.count(" is-heavy") == 7
+    assert "Waarom het Rode Kruis" in body
