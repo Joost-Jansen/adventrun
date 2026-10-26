@@ -134,3 +134,11 @@ def test_settings_rejects_non_https_link(client):
     csrf = login(client)
     r = client.post("/admin/settings", data={"donated_total": "0", "action_page_url": "javascript:alert(1)", "csrf": csrf}, headers=ORIGIN)
     assert r.status_code == 400
+
+
+def test_km_outside_the_challenge_are_refused(client):
+    csrf = login(client)
+    for day in ("2026-11-30", "2026-12-26"):
+        r = client.post("/admin/progress", data={"day": day, "km": "10", "csrf": csrf}, headers=ORIGIN)
+        assert r.status_code == 400 and "buiten de challenge" in r.text
+    assert "0 van 325 km" in client.get("/").text

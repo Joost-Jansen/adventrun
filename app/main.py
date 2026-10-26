@@ -130,12 +130,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def site_context(s, lang: str = "nl") -> dict:
         cfg = s.get(SiteSettings, 1)
         planned = cfg.total_planned_km
-        km_walked = s.scalar(select(func.coalesce(func.sum(Progress.km), 0))) or 0
+        first, last = settings.challenge_start, settings.challenge_start + timedelta(days=settings.challenge_days - 1)
+        in_challenge = Progress.date.between(first, last)  # km outside the 25 days never count
+        km_walked = s.scalar(select(func.coalesce(func.sum(Progress.km), 0)).where(in_challenge)) or 0
         pledges = s.scalars(select(Pledge).where(Pledge.status != "withdrawn").order_by(Pledge.created_at, Pledge.id)).all()
         now_cents, potential_cents = pledged_totals([terms(p) for p in pledges], km_walked, planned)
         t = today()
         day = challenge_day(t, settings.challenge_start, settings.challenge_days)
-        km_by_date = {r.date: r.km for r in s.scalars(select(Progress))}
+        km_by_date = {r.date: r.km for r in s.scalars(select(Progress).where(in_challenge))}
         return {
             "lang": lang,
             "t": translator(lang, settings.owner_name, charity[lang]),
@@ -338,6 +340,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "progress": progress,
                 "statuses": [(k, STATUS_LABELS[k]) for k in PLEDGE_STATUSES],
                 "today": today(),
+                "last_day": settings.challenge_start + timedelta(days=settings.challenge_days - 1),
             },
         )
 
@@ -386,6 +389,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             d = date.fromisoformat(day)
         except ValueError:
             raise HTTPException(400, "Ongeldige datum.")
+        last_day = settings.challenge_start + timedelta(days=settings.challenge_days - 1)
+        if not settings.challenge_start <= d <= last_day:
+            raise HTTPException(400, f"Datum valt buiten de challenge ({settings.challenge_start.isoformat()} t/m {last_day.isoformat()}).")
         with sessions() as s:
             row = s.get(Progress, d)
             if not km.strip():

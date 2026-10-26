@@ -51,6 +51,7 @@ T: dict[str, dict[str, str]] = {
         "receipt_donated": "Al gedoneerd bij {charity}: {amount}",
         "receipt_row_period": "{dates} · {km} km",
         "receipt_group_fixed": "Vaste bedragen",
+        "receipt_rows_title": "Wat de toezeggingen per km opleveren in elke week van december, als ik die week helemaal loop:",
         "receipt_total": "Samen",
         "receipt_none": "Nog geen toezeggingen. De eerste telt het zwaarst.",
         # pinned story
@@ -186,6 +187,7 @@ T: dict[str, dict[str, str]] = {
         "receipt_donated": "Already donated to {charity}: {amount}",
         "receipt_row_period": "{dates} · {km} km",
         "receipt_group_fixed": "Fixed amounts",
+        "receipt_rows_title": "What the per-km pledges bring in during each week of December, if I run that week in full:",
         "receipt_total": "Together",
         "receipt_none": "No pledges yet. The first one counts the most.",
         "strip_button": "Go to the fundraising page",

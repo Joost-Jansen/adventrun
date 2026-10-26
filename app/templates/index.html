@@ -46,6 +46,7 @@
       {% endif %}
 
       {% if supporters %}
+      <p class="slip-note slip-rows-title">{{ t('receipt_rows_title') }}</p>
       <ul class="slip-rows">
         {% for p in periods %}
         <li><span>{{ t('receipt_row_period', dates=p.dates, km=p.km) }}</span><span class="dots" aria-hidden="true"></span><span class="num">{{ fmt(p.cents) }}</span></li>

@@ -31,7 +31,7 @@
   <h2>Km per dag</h2>
   <form method="post" action="/admin/progress" class="inline">
     <input type="hidden" name="csrf" value="{{ csrf }}">
-    <div class="field"><label for="day">Datum</label><input id="day" name="day" type="date" value="{{ today.isoformat() }}" required></div>
+    <div class="field"><label for="day">Datum</label><input id="day" name="day" type="date" value="{{ today.isoformat() }}" min="{{ start.isoformat() }}" max="{{ last_day.isoformat() }}" required></div>
     <div class="field"><label for="km_input">Km (leeg = wissen)</label><input id="km_input" name="km" inputmode="decimal"></div>
     <button type="submit">Opslaan</button>
   </form>
