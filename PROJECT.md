@@ -284,3 +284,4 @@ Context: de MCP-tools van de tracker kunnen nu alleen het **actieve** plan tonen
 - 2026-10-26: nieuw ontwerp (desktop met zijbalk, mobiel één kolom, adventskalender, keuzekaarten, bedragknoppen met referentie, live uitkomst, donatieblok, deelknop) en Engelse versie op `/en` om ook op het werk te delen. Kolom `pledges.lang` met migratiestap.
 - 2026-10-26: "Toegezegd" toont nu groot het bedrag bij alle 325 km en klein "tot nu toe"; voorheen leek een toezegging van € 1/km niet mee te tellen.
 - 2026-10-26: eigen blok "Wat er is toegezegd": groot het bedrag bij alle 25 dagen, een balk met wat er al binnengelopen is, en een overzicht tot nu toe / bij 20 dagen (210 km, brons) / bij alle 25 dagen, plus het aantal toezeggingen per soort.
+- 2026-10-26: regel "bij 20 dagen" weer weggehaald (niet relevant); blokken naast elkaar even hoog.

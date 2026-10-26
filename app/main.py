@@ -59,17 +59,6 @@ def calendar(start: date, days: int, today_: date, km_by_date: dict) -> list[dic
     return tiles
 
 
-def scenarios(pledges, days: int, planned_km: int) -> list[dict]:
-    """What all pledges come to at a few points: 20 days (the bronze level in the plan) and the full distance."""
-    out = []
-    for d in (20, days):
-        if d > days or any(x["days"] == d for x in out):
-            continue
-        km = min(d * (d + 1) // 2, planned_km) if d < days else planned_km
-        out.append({"days": d, "km": km, "cents": pledged_totals([terms(p) for p in pledges], km, planned_km)[0]})
-    return out
-
-
 PER_KM_CHOICES = (5, 10, 25, 50, 100)  # cents per km
 FIXED_CHOICES = (1000, 2500, 5000, 10000)  # cents
 
@@ -145,7 +134,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "calendar": calendar(settings.challenge_start, settings.challenge_days, t, km_by_date),
             "pledged_now": now_cents,
             "pledged_potential": potential_cents,
-            "scenarios": scenarios(pledges, settings.challenge_days, planned),
             "count_per_km": sum(1 for p in pledges if p.type == "per_km"),
             "count_fixed": sum(1 for p in pledges if p.type == "fixed"),
             "supporters": len(pledges),

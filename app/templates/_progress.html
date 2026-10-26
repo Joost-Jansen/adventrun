@@ -62,12 +62,10 @@
         <th scope="row">{{ t('scenario_so_far') }}<span>{{ fmt_km(km_walked) }} km</span></th>
         <td>{{ fmt(pledged_now) }}</td>
       </tr>
-      {% for sc in scenarios %}
-      <tr class="{% if loop.last %}is-total{% endif %}">
-        <th scope="row">{% if loop.last %}{{ t('scenario_all', total=days) }}{% else %}{{ t('scenario_days', days=sc.days, total=days) }}{% endif %}<span>{{ sc.km }} km</span></th>
-        <td>{{ fmt(sc.cents) }}</td>
+      <tr class="is-total">
+        <th scope="row">{{ t('scenario_all', total=days) }}<span>{{ planned_km }} km</span></th>
+        <td>{{ fmt(pledged_potential) }}</td>
       </tr>
-      {% endfor %}
     </tbody>
   </table>
   {% endif %}

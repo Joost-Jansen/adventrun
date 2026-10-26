@@ -113,14 +113,13 @@ def test_headline_pledged_is_full_distance_before_the_end(client):
 
 
 def test_scenarios(client):
-    post(client, display_name="A", per_km_amount="1", max_amount="100")  # 210 km -> capped at 100
-    post(client, display_name="B", per_km_amount="0,10")  # 210 km -> 21, 325 km -> 32,50
+    post(client, display_name="A", per_km_amount="1", max_amount="100")  # 325 km -> capped at 100
+    post(client, display_name="B", per_km_amount="0,10")  # 325 km -> 32,50
     post(client, display_name="C", type="fixed", fixed_amount="25")
     body = client.get("/").text
     rows = re.findall(r'<th scope="row">(.*?)<span>(.*?)</span></th>\s*<td>(.*?)</td>', body)
     assert rows == [
         ("Tot nu toe", "0 km", "€\u00a025"),
-        ("Bij 20 van de 25 dagen", "210 km", "€\u00a0146"),
-        ("Bij alle 25 dagen", "325 km", "€\u00a0157,50"),
+        ("Bij alle 25 dagen", "325 km", "€\u00a0157,50"),  # 100 + 32,50 + 25
     ]
     assert "3 toezeggingen: 2 per km, 1 vast bedrag." in body
