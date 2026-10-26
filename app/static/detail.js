@@ -33,3 +33,11 @@
     });
   });
 })();
+
+// The goal label sits on the goal line: its height comes from the data, set through the CSSOM (CSP allows no inline style).
+document.querySelectorAll(".goal-tag[data-goal-y]").forEach((tag) => {
+  const y = Number(tag.dataset.goalY);
+  if (!Number.isFinite(y)) return;
+  tag.style.top = `calc(1.6rem + (100% - 1.6rem) * ${y / 100})`;
+  tag.classList.add("is-placed");
+});

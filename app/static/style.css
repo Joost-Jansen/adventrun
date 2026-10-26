@@ -98,10 +98,10 @@ a { color: inherit; }
 
 /* ---- the stage: one view on a computer ---- */
 .stage {
-  position: relative; background-color: var(--spar); background-image: url("/static/snow.svg");
+  position: relative; overflow: clip; background-color: var(--spar);
   padding-block: clamp(0.75rem, 2vh, 1.5rem) clamp(3rem, 6vh, 4.5rem);
 }
-.stage-grid { display: grid; gap: 2.5rem; }
+.stage-grid { position: relative; z-index: 3; display: grid; gap: 2.5rem; }
 @media (min-width: 1100px) {
   .page-home .stage { min-height: calc(100svh - 3rem); display: grid; align-content: center; }
   .stage-grid {
@@ -112,7 +112,31 @@ a { color: inherit; }
   .tally { grid-area: tally; }
   .pledge-panel { grid-area: pledge; }
 }
-.drift { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: clamp(1.75rem, 4vw, 3.5rem); fill: var(--snow); }
+.drift { position: absolute; z-index: 1; left: 0; right: 0; bottom: -1px; width: 100%; height: clamp(2.25rem, 4vw, 3.5rem); fill: var(--snow); }
+
+/* falling snow: two layers of the same flakes, the near one bigger and faster; each moves exactly one tile, so the loop has no seam */
+.snowfall { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.snowfall::before, .snowfall::after { content: ""; position: absolute; left: 0; right: 0; top: -480px; bottom: 0; background-image: url("/static/snow.svg"); }
+.snowfall::before { background-size: 240px 240px; }
+.snowfall::after { background-size: 480px 480px; background-position: 130px 70px; opacity: 0.6; }
+
+/* runners in the snowdrift at the bottom of the stage */
+.runners { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; height: 6.5rem; overflow: hidden; pointer-events: none; }
+.runner { position: absolute; left: -4.5rem; height: 4.4rem; width: auto; aspect-ratio: 40 / 56; overflow: visible; --stride: 0.66s; }
+.runner-1 { bottom: 0.9rem; }
+.runner-2 { bottom: 0.7rem; height: 3.9rem; --stride: 0.72s; }
+.runner-3 { bottom: 1rem; height: 3.4rem; --stride: 0.6s; }
+.runner line, .runner polyline { fill: none; stroke: var(--snow); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; }
+.r-head { fill: var(--snow); }
+.r-hat { fill: var(--candle); }
+.r-pom { fill: var(--snow); }
+.r-hat + .r-pom { stroke: var(--spar); stroke-width: 0.8; }
+.r-back { opacity: 0.5; }
+.r-body, .r-leg, .r-shin, .r-arm { transform-box: view-box; }
+.r-leg { transform-origin: 18px 32px; transform: rotate(-20deg); }
+.r-shin { transform-origin: 18px 43px; transform: rotate(30deg); }
+.r-arm { transform-origin: 23px 17px; }
+.r-leg.r-back { transform: rotate(20deg); }
 
 /* the calendar */
 .calendar { min-width: 0; text-align: center; }
@@ -282,6 +306,8 @@ input:not([type="checkbox"], [type="radio"]):focus, textarea:focus { border-colo
 .money-line { fill: none; stroke: var(--money); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
 .goal-ref { stroke: var(--money); stroke-width: 2; stroke-dasharray: 6 5; opacity: 0.7; }
 .goal-tag { position: absolute; right: 0; top: 0; font-size: var(--step-small); font-weight: 700; color: #8a610e; }
+/* detail.js puts the label on the goal line itself (its height comes from the data) */
+.goal-tag.is-placed { right: auto; left: 0; z-index: 1; transform: translateY(calc(-100% - 0.2rem)); background: var(--snow); padding-right: 0.4rem; }
 .chart-axis { display: flex; justify-content: space-between; margin-top: 0.4rem; font-size: var(--step-small); color: var(--muted); }
 .door-detail { margin: 0.5rem 0 0; min-height: 3em; font-size: var(--step-small); color: var(--muted); }
 .h1 { height: 3.52%; } .h2 { height: 7.04%; } .h3 { height: 10.56%; } .h4 { height: 14.08%; } .h5 { height: 17.6%; } .h6 { height: 21.12%; } .h7 { height: 24.64%; } .h8 { height: 28.16%; } .h9 { height: 31.68%; } .h10 { height: 35.2%; } .h11 { height: 38.72%; } .h12 { height: 42.24%; } .h13 { height: 45.76%; } .h14 { height: 49.28%; } .h15 { height: 52.8%; } .h16 { height: 56.32%; } .h17 { height: 59.84%; } .h18 { height: 63.36%; } .h19 { height: 66.88%; } .h20 { height: 70.4%; } .h21 { height: 73.92%; } .h22 { height: 77.44%; } .h23 { height: 80.96%; } .h24 { height: 84.48%; } .h25 { height: 88.0%; }
@@ -324,8 +350,19 @@ p.guest-names { display: block; }
 .prose h2 { font-size: var(--step-lead); margin: 1.6rem 0 0.4rem; }
 .prose ul { padding-left: 1.2rem; }
 
-/* ---- motion: one moment, the bibs arrive ---- */
+/* ---- motion: snow falls, runners run, and the bibs arrive once ---- */
 @media (prefers-reduced-motion: no-preference) {
+  .snowfall::before { animation: fall-far 22s linear infinite; will-change: transform; }
+  .snowfall::after { animation: fall-near 15s linear infinite; will-change: transform; }
+  .runner { animation: run-across 34s linear infinite; }
+  .runner-1 { animation-delay: -6s; }
+  .runner-2 { animation-duration: 41s; animation-delay: -24s; }
+  .runner-3 { animation-duration: 29s; animation-delay: -15s; }
+  .r-body { animation: bob calc(var(--stride) / 2) ease-in-out infinite; }
+  .r-leg { animation: thigh var(--stride) linear infinite; }
+  .r-shin { animation: shin var(--stride) linear infinite; }
+  .r-arm { animation: arm var(--stride) ease-in-out infinite; }
+  .r-back, .r-back .r-shin { animation-delay: calc(var(--stride) / -2); }
   .js .door { opacity: 0; transform: translateY(8px); animation: rise 450ms var(--ease-out) forwards; }
   .js .d1 { animation-delay: 150ms; } .js .d2 { animation-delay: 175ms; } .js .d3 { animation-delay: 200ms; } .js .d4 { animation-delay: 225ms; } .js .d5 { animation-delay: 250ms; }
   .js .d6 { animation-delay: 275ms; } .js .d7 { animation-delay: 300ms; } .js .d8 { animation-delay: 325ms; } .js .d9 { animation-delay: 350ms; } .js .d10 { animation-delay: 375ms; }
@@ -334,6 +371,14 @@ p.guest-names { display: block; }
   .js .d21 { animation-delay: 650ms; } .js .d22 { animation-delay: 675ms; } .js .d23 { animation-delay: 700ms; } .js .d24 { animation-delay: 725ms; } .js .d25 { animation-delay: 750ms; }
 }
 @keyframes rise { to { opacity: 1; transform: none; } }
+@keyframes fall-far { from { transform: translateY(0); } to { transform: translateY(240px); } }
+@keyframes fall-near { from { transform: translateY(0); } to { transform: translateY(480px); } }
+@keyframes run-across { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 6rem)); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes thigh { 0%, 100% { transform: rotate(-38deg); } 50% { transform: rotate(32deg); } }
+@keyframes shin { 0% { transform: rotate(15deg); } 30% { transform: rotate(10deg); } 50% { transform: rotate(35deg); } 70% { transform: rotate(105deg); } 90% { transform: rotate(55deg); } 100% { transform: rotate(15deg); } }
+@keyframes arm { 0%, 100% { transform: rotate(45deg); } 50% { transform: rotate(-40deg); } }
+@media (prefers-reduced-motion: reduce) { .runners { display: none; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
 /* ---- admin (an app screen: plain and quiet) ---- */
