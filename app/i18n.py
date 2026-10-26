@@ -107,11 +107,12 @@ T: dict[str, dict[str, str]] = {
         "receipt_none": "Nog geen toezeggingen. De eerste telt het zwaarst.",
         # pinned story
         # letter
-        "strip_button": "Naar de actiepagina",
         "donate_soon": "De link naar de actiepagina komt hier vóór 1 december.",
         # reply card (form)
         "reply_aside": "Een toezegging is een belofte, geen betaling. Na 25 december reken ik je bedrag uit en doneer je zelf op de actiepagina, vóór 1 januari.",
-        "form_title": "Doe een toezegging",
+        "donate_now": "Doneer nu direct",
+        "donate_now_note": "Via de actiepagina van {charity}: meteen geregeld.",
+        "or_pledge": "Of doe een toezegging",
         "step_type": "Hoe wil je steunen?",
         "type_per_km": "Per km",
         "type_per_km_desc": "Groeit mee met elke km die ik loop.",
@@ -291,10 +292,11 @@ T: dict[str, dict[str, str]] = {
         "receipt_rows_title": "What the per-km pledges bring in during each week of December, if I run that week in full:",
         "receipt_total": "Together",
         "receipt_none": "No pledges yet. The first one counts the most.",
-        "strip_button": "Go to the fundraising page",
         "donate_soon": "The link to the fundraising page will be here before 1 December.",
         "reply_aside": "A pledge is a promise, not a payment. After 25 December I work out your amount and you donate yourself on the fundraising page, before 1 January.",
-        "form_title": "Make a pledge",
+        "donate_now": "Donate now",
+        "donate_now_note": "Through {charity}'s fundraising page: done right away.",
+        "or_pledge": "Or make a pledge",
         "step_type": "How would you like to support?",
         "type_per_km": "Per km",
         "type_per_km_desc": "Grows with every km I run.",

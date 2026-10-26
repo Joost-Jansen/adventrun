@@ -24,14 +24,14 @@ def test_english_pages(client):
         assert r.status_code == 200, name
         assert '<html lang="en">' in r.text
     home = client.get("/en").text
-    assert "Make a pledge" in home and "Wall of support" in home and "the Red Cross" in home
+    assert "Or make a pledge" in home and "Wall of support" in home and "the Red Cross" in home
     assert 'hreflang="nl" href="/"' in home
     assert client.get("/en/", follow_redirects=False).headers["location"] == "/en"
 
 
 def test_dutch_home_links_to_english(client):
     body = client.get("/").text
-    assert '<html lang="nl">' in body and 'href="/en"' in body and "Doe een toezegging" in body
+    assert '<html lang="nl">' in body and 'href="/en"' in body and "Of doe een toezegging" in body
 
 
 def test_english_pledge_redirects_and_errors_in_english(client, app):

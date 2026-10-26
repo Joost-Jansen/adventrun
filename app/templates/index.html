@@ -57,25 +57,26 @@
         <p class="goal-pct"><strong>{{ t('goal_reached' if not goal_left else 'goal_pct', pct=goal_pct) }}</strong><br>{{ t('goal_line', goal=fmt(goal_cents), per_km=fmt(goal_per_km)) }}</p>
       </div>
       {% endif %}
+      <div class="donate-now" id="doneren">
+        {% if action_page_url %}
+          <a class="button button-candle" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('donate_now') }}</a>
+          <p class="hint">{{ t('donate_now_note') }}</p>
+        {% else %}
+          <p class="soon">{{ t('donate_soon') }}</p>
+        {% endif %}
+      </div>
       <dl class="facts">
         <div><dt>{{ t('stat_avg_label') }}</dt><dd>{{ fmt(avg_per_km) }}</dd></div>
         <div><dt>{{ t('goal_legend_now') }}, {{ fmt_km(km_walked) }} km</dt><dd>{{ fmt(pledged_now) }}</dd></div>
         <div><dt>{{ t('stat_pledges_label') }}</dt><dd>{{ supporters }}</dd></div>
         <div><dt>{{ t('tally_donated') }}</dt><dd>{{ fmt(donated_cents) }}</dd></div>
       </dl>
-      <div class="donate" id="doneren">
-        {% if action_page_url %}
-          <a class="button button-snow" href="{{ action_page_url }}" rel="noopener" target="_blank">{{ t('strip_button') }}</a>
-        {% else %}
-          <p class="soon">{{ t('donate_soon') }}</p>
-        {% endif %}
-      </div>
       <p class="tally-links"><a class="link" href="#opbouw">{{ t('build_title') }}</a><br><a class="link" href="#muur">{{ t('wall_more') }}</a></p>
     </aside>
 
     {# the pledge form #}
     <div class="pledge-panel" id="toezeggen">
-      <h2 id="form-title" class="pledge-title">{{ t('form_title') }}</h2>
+      <h2 class="pledge-title" id="form-title">{{ t('or_pledge') }}</h2>
 
       {% if errors %}
       <div class="errors" role="alert"><p><strong>{{ t('errors_title') }}</strong> {{ t('errors_body') }}</p></div>
@@ -198,7 +199,7 @@
           </div>
         </fieldset>
 
-        <button type="submit" class="button button-candle">{{ t('submit') }}</button>
+        <button type="submit" class="button button-wide">{{ t('submit') }}</button>
         <p class="hint">{{ t('submit_note') }} <a class="link" href="{{ paths.privacy }}">{{ t('privacy_link') }}</a></p>
       </form>
     </div>

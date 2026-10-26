@@ -87,6 +87,7 @@ a { color: inherit; }
 @media (hover: hover) and (pointer: fine) { .button:hover { filter: brightness(1.08); } }
 .button-candle { background: var(--candle); color: var(--ink); width: 100%; font-size: var(--step-lead); margin-top: 0.4rem; }
 .button-snow { background: var(--snow); color: var(--spar); }
+.button-wide { width: 100%; font-size: var(--step-lead); margin-top: 0.4rem; }
 .soon { color: var(--on-spar-muted); font-size: var(--step-small); margin: 0; }
 
 /* ---- top bar ---- */
@@ -229,8 +230,9 @@ a { color: inherit; }
 .facts div { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; padding: 0.45rem 0; border-top: 1px solid rgb(255 255 255 / 0.16); }
 .facts dt { font-size: var(--step-small); color: var(--on-spar-muted); }
 .facts dd { margin: 0; font-family: var(--display); font-size: 1.6rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.donate { margin-top: 1rem; }
-.donate .button { width: 100%; }
+.donate-now { margin-top: 1.1rem; }
+.donate-now .button { margin-top: 0; }
+.donate-now .hint { margin-top: 0.35rem; color: var(--on-spar-muted); }
 .tally-links { font-size: var(--step-small); margin: 1rem 0 0; line-height: 1.9; color: var(--on-spar-muted); }
 
 /* the pledge form, on a snow card */

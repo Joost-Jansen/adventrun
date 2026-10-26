@@ -20,7 +20,8 @@ def post(client, **data):
 def test_home_renders_without_cookies(client):
     r = client.get("/")
     assert r.status_code == 200
-    assert "Doe een toezegging" in r.text
+    assert "Of doe een toezegging" in r.text
+    assert "Doneer nu direct" not in r.text and "De link naar de actiepagina komt hier" in r.text  # no action page set yet
     assert "set-cookie" not in r.headers
     assert "default-src 'self'" in r.headers["content-security-policy"]
 

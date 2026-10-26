@@ -70,6 +70,9 @@ def test_progress_updates_totals_and_csv(client, app):
     # 6.5 km: 0.65 + 1.625 (-> 1.63) + 15
     assert "€\u00a017,28" in home
     assert "€\u00a012,50" in home
+    # the direct-donation button sits above the pledge form and goes to the action page
+    assert '<a class="button button-candle" href="https://example.org/actie" rel="noopener" target="_blank">Doneer nu direct</a>' in home
+    assert home.index("Doneer nu direct") < home.index("Of doe een toezegging") < home.index('id="pledge-form"')
 
     rows = list(csv.reader(io.StringIO(client.get("/admin/export.csv").text.lstrip("\ufeff")), delimiter=";"))
     header, data = rows[0], rows[1:]
