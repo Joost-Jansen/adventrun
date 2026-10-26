@@ -29,6 +29,7 @@ Open http://localhost:8000 and http://localhost:8000/admin.
    | `ADMIN_PASSWORD` | a long password; the admin page is off without it |
    | `TRUST_PROXY` | `1` |
    | `PUBLIC_ORIGINS` | `https://<service>.up.railway.app` (later also the custom domain, comma-separated) |
+   | `GOAL_PER_KM` | optional fundraising goal per km, e.g. `3,25` (the goal shown is this times the planned km); empty shows no goal |
    | `OWNER_NAME`, `CHARITY_NAME`, `CHARITY_NAME_EN` | optional, default `Joost`, `het Rode Kruis` and `the Red Cross` |
 
 4. Pick an EU region (e.g. Amsterdam) for both services. **Settings, Networking, Generate Domain** gives a `*.up.railway.app` address. A custom domain is added later

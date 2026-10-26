@@ -18,11 +18,11 @@
 <body class="{% block body_class %}{% endblock %}">
   <a class="skip" href="#main">{{ t('skip') }}</a>
   {% block header %}
-  <header class="bar">
-    <div class="frame bar-inner">
+  <header class="topbar">
+    <div class="frame topbar-inner">
       <a class="wordmark" href="{{ paths.home if paths is defined else '/' }}">{{ t('brand') }}</a>
       {% if alternates is defined %}
-      <a class="bar-link" href="{{ other_lang_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t('lang_other') }}</a>
+      <a class="topbar-link" href="{{ other_lang_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ t('lang_other') }}</a>
       {% endif %}
     </div>
   </header>

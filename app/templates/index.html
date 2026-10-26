@@ -44,7 +44,18 @@
       <h2 id="receipt-title" class="visually-hidden">{{ t('receipt_title') }}</h2>
       <p class="total display" aria-describedby="receipt-note">{{ fmt(pledged_now if day > days else pledged_potential) }}</p>
       <p class="slip-note slip-lead" id="receipt-note">{% if day > days %}{{ t('receipt_final_note', km=fmt_km(km_walked)) }}{% else %}{{ t('receipt_note_short', km=planned_km) }}{% endif %}</p>
-      {% if day <= days %}
+      {% if goal_cents %}
+      <div class="goal" role="img" aria-label="{{ t('goal_line', goal=fmt(goal_cents), per_km=fmt(goal_per_km)) }}; {{ t('goal_legend_now') }} {{ fmt(pledged_now) }}; {{ t('goal_legend_full') }} {{ fmt(pledged_potential) }}; {{ t('goal_legend_rest') }} {{ fmt(goal_left) }}">
+        <p class="goal-line">{{ t('goal_line', goal=fmt(goal_cents), per_km=fmt(goal_per_km)) }}</p>
+        <svg class="goal-bar" viewBox="0 0 1000 14" preserveAspectRatio="none" aria-hidden="true"><rect class="gb-track" width="1000" height="14"/><rect class="gb-full" width="{{ goal_bar[1] }}" height="14"/><rect class="gb-now" width="{{ goal_bar[0] }}" height="14"/></svg>
+        <p class="goal-legend" aria-hidden="true">
+          <span><span class="key key-now"></span>{{ t('goal_legend_now') }} {{ fmt(pledged_now) }} ({{ fmt_km(km_walked) }} km)</span>
+          <span><span class="key key-full"></span>{{ t('goal_legend_full') }} {{ fmt(pledged_potential) }}</span>
+          {% if goal_left %}<span><span class="key key-rest"></span>{{ t('goal_legend_rest') }} {{ fmt(goal_left) }}</span>{% endif %}
+        </p>
+        <p class="goal-pct">{{ t('goal_reached' if not goal_left else 'goal_pct', pct=goal_pct) }}</p>
+      </div>
+      {% elif day <= days %}
       <progress class="meter" max="{{ [pledged_potential, 1]|max }}" value="{{ pledged_now }}" aria-label="{{ t('receipt_bar_label', now=fmt(pledged_now), total=fmt(pledged_potential)) }}"></progress>
       <p class="slip-note">{{ t('receipt_caption', now=fmt(pledged_now), km=fmt_km(km_walked)) }}</p>
       {% endif %}
@@ -232,33 +243,48 @@
   </div>
 </section>
 
-{# ---- How heavy it gets: km per day against a half marathon ---- #}
+{# ---- How heavy it gets, and how the pledges grow towards the goal ---- #}
 <section class="section heavy-section" id="zwaarte" aria-labelledby="heavy-title">
-  <div class="frame heavy-grid">
-    <div class="heavy-text">
+  <div class="frame">
+    <div class="heavy-head">
       <h2 id="heavy-title" class="head" data-reveal>{{ t('heavy_title') }}</h2>
       <p class="lead" data-reveal>{{ t('heavy_lead', n=heavy.last_days, km=heavy.last_km, avg=fmt_km(heavy.last_avg)) }}</p>
-      <div class="heavy-stats" data-reveal>
-        <p><span class="stat-num">{{ heavy.last_km }}</span><span class="stat-label">{{ t('heavy_stat_last', n=heavy.last_days) }}</span></p>
-        <p><span class="stat-num">{{ fmt_km(heavy.last_avg) }}</span><span class="stat-label">{{ t('heavy_stat_avg', half=fmt_km(heavy.half)) }}</span></p>
-        <p><span class="stat-num">3×</span><span class="stat-label">{{ t('heavy_stat_times') }}</span></p>
-      </div>
     </div>
-
-    <figure class="chart" data-reveal>
+    <figure class="chart combo" data-reveal>
+      <h3 class="chart-title">{{ t('combo_title') }}</h3>
+      <p class="combo-legend" aria-hidden="true">
+        <span><span class="key key-km"></span>{{ t('combo_km') }}</span>
+        <span><span class="key key-line"></span>{{ t('combo_money') }} · {{ t('combo_end', amount=fmt(money_days[-1].cents)) }}</span>
+      </p>
       <div class="chart-plot" aria-hidden="true" data-detail-target="chart-detail">
-        <div class="chart-ref" aria-hidden="true"><span>{{ t('chart_half', half=fmt_km(heavy.half)) }}</span></div>
+        <div class="chart-ref"><span>{{ t('combo_half', half=fmt_km(heavy.half)) }}</span></div>
+        {% if goal_cents %}<span class="goal-tag">{{ t('combo_goal', goal=fmt(goal_cents)) }}</span>{% endif %}
         {% for tile in calendar %}
+        {% set m = money_days[loop.index0] %}
         <span class="bar h{{ tile.day }}{% if tile.day >= heavy.last_first %} is-heavy{% endif %}"
-          data-detail="{{ t('chart_bar', date=fmt_date(tile.date), km=tile.day) }}{% if tile.day in noted %} · {{ t('note_' ~ tile.day) }}{% endif %}">{% if loop.last %}<span class="bar-label">{{ tile.day }} km</span>{% endif %}</span>
+          data-detail="{{ t('combo_bar', date=fmt_date(tile.date), km=tile.day, amount=fmt(m.cents)) }}{% if tile.day in noted %} · {{ t('note_' ~ tile.day) }}{% endif %}">{% if loop.last %}<span class="bar-label">{{ tile.day }} km</span>{% endif %}</span>
         {% endfor %}
+        <svg class="combo-svg" viewBox="0 0 250 100" preserveAspectRatio="none" focusable="false">
+          {% if goal_cents %}<line class="goal-ref" x1="0" x2="250" y1="{{ money_goal_y }}" y2="{{ money_goal_y }}" vector-effect="non-scaling-stroke"/>{% endif %}
+          <polyline class="money-line" points="{% for m in money_days %}{{ loop.index0 * 10 + 5 }},{{ m.y }} {% endfor %}" vector-effect="non-scaling-stroke"/>
+        </svg>
       </div>
       <div class="chart-axis" aria-hidden="true"><span>{{ t('chart_first') }}</span><span>{{ t('chart_last') }}</span></div>
-      <figcaption class="door-detail" id="chart-detail" data-default="{{ t('chart_hint') }}">{{ t('chart_hint') }}</figcaption>
+      <figcaption class="door-detail" id="chart-detail">{{ t('combo_hint') }}</figcaption>
+      <div class="chart-stats">
+        <p><span class="stat-num">{{ heavy.last_km }}</span><span class="stat-label">{{ t('heavy_stat_last', n=heavy.last_days) }}</span></p>
+        <p><span class="stat-num">{{ fmt_km(heavy.last_avg) }}</span><span class="stat-label">{{ t('heavy_stat_avg', half=fmt_km(heavy.half)) }}</span></p>
+        {% if goal_cents %}
+        <p><span class="stat-num">{{ fmt(goal_cents) }}</span><span class="stat-label">{{ t('money_stat_goal', per_km=fmt(goal_per_km)) }}</span></p>
+        <p><span class="stat-num">{{ fmt(goal_left) if goal_left else fmt(pledged_potential - goal_cents) }}</span><span class="stat-label">{{ t('money_stat_left') if goal_left else t('money_stat_over') }}</span></p>
+        {% else %}
+        <p><span class="stat-num">{{ fmt(pledged_potential) }}</span><span class="stat-label">{{ t('money_stat_pledged', km=planned_km) }}</span></p>
+        {% endif %}
+      </div>
       <div class="visually-hidden"><table>
-        <caption>{{ t('chart_label') }}</caption>
-        <thead><tr><th scope="col">{{ t('chart_th_day') }}</th><th scope="col">{{ t('chart_th_km') }}</th></tr></thead>
-        <tbody>{% for tile in calendar %}<tr><td>{{ fmt_date(tile.date) }}</td><td>{{ tile.day }}</td></tr>{% endfor %}</tbody>
+        <caption>{{ t('combo_title') }}</caption>
+        <thead><tr><th scope="col">{{ t('chart_th_day') }}</th><th scope="col">{{ t('chart_th_km') }}</th><th scope="col">{{ t('money_th_amount') }}</th></tr></thead>
+        <tbody>{% for tile in calendar %}<tr><td>{{ fmt_date(tile.date) }}</td><td>{{ tile.day }}</td><td>{{ fmt(money_days[loop.index0].cents) }}</td></tr>{% endfor %}</tbody>
       </table></div>
     </figure>
   </div>

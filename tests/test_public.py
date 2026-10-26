@@ -168,3 +168,26 @@ def test_doors_show_date_and_km_and_open_onto_the_amount(client):
     assert '<span class="door-inside" aria-hidden="true">€\u00a012,50</span>' in body
     assert '<span class="door-num">25</span><span class="door-units"><span>dec</span><span>km</span></span>' in body
     assert "<span>Dec</span><span>km</span>" in client.get("/en").text
+
+
+def test_goal_in_receipt_and_chart(settings):
+    from dataclasses import replace
+
+    from fastapi.testclient import TestClient
+
+    from app.main import create_app
+
+    c = TestClient(create_app(replace(settings, goal_per_km_cents=325)))
+    c.post("/toezeggen", data={"display_name": "A", "type": "per_km", "per_km_amount": "1"}, headers=ORIGIN)
+    body = c.get("/").text
+    assert "Doel: €\u00a01.056,25 (€\u00a03,25 per km)" in body  # 3,25 × 325 km
+    assert "31% van het doel toegezegd" in body  # 325 / 1056,25
+    assert "nog nodig €\u00a0731,25" in body
+    assert 'class="goal-ref"' in body and "doel €\u00a01.056,25" in body
+    assert 'class="money-line"' in body and "€\u00a0325 op 25 dec" in body
+
+
+def test_no_goal_without_setting(client):
+    body = client.get("/").text
+    assert "Doel:" not in body and 'class="goal-ref"' not in body
+    assert 'class="money-line"' in body  # the line still shows what has been pledged

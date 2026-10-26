@@ -89,6 +89,24 @@ def day_values(pledges, days: int, planned_km: int) -> list[tuple[int, int, int]
     return out
 
 
+def goal_context(goal_per_km: int, planned_km: int, now: int, potential: int, dvs: list, fixed: int) -> dict:
+    """The fundraising goal and the money chart: what has been pledged by the end of each day if every day is run in
+    full (per-km pledges so far plus all fixed amounts), on one scale with the goal."""
+    goal = goal_per_km * planned_km
+    by_day = [cum + fixed for _, _, cum in dvs]
+    full = max(goal, potential, 1)  # the goal is the top of the receipt bar and the chart, unless pledges pass it
+    return {
+        "goal_cents": goal,
+        "goal_per_km": goal_per_km,
+        "goal_pct": round(potential / goal * 100) if goal else 0,
+        "goal_left": max(goal - potential, 0),
+        # bar widths (in thousandths) for the receipt: so far, pledged at full distance, against the goal
+        "goal_bar": (round(now / full * 1000), round(potential / full * 1000)),
+        "money_days": [{"cents": c, "y": round(100 - c / full * 100, 2)} for c in by_day],
+        "money_goal_y": round(100 - goal / full * 100, 2),
+    }
+
+
 HALF_MARATHON_KM = 21.1
 
 
@@ -162,6 +180,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         t = today()
         day = challenge_day(t, settings.challenge_start, settings.challenge_days)
         km_by_date = {r.date: r.km for r in s.scalars(select(Progress).where(in_challenge))}
+        fixed = sum(p.amount_cents for p in pledges if p.type == "fixed")
         return {
             "lang": lang,
             "t": translator(lang, settings.owner_name, charity[lang]),
@@ -176,11 +195,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "start": settings.challenge_start,
             "start_text": format_date(settings.challenge_start, lang),
             "calendar": (tiles := calendar(settings.challenge_start, settings.challenge_days, t, km_by_date)),
-            "day_values": day_values(pledges, settings.challenge_days, planned),
+            "day_values": (dvs := day_values(pledges, settings.challenge_days, planned)),
+            **goal_context(settings.goal_per_km_cents, planned, now_cents, potential_cents, dvs, fixed),
             "heavy": heaviness(settings.challenge_days),
             "calendar_rows": calendar_rows(tiles),
             "periods": periods(pledges, settings.challenge_start, settings.challenge_days, planned, lang),
-            "fixed_total": sum(p.amount_cents for p in pledges if p.type == "fixed"),
+            "fixed_total": fixed,
             "pledged_now": now_cents,
             "pledged_potential": potential_cents,
             # What one km is worth on average: the whole pledged total spread over the km it is pledged for.

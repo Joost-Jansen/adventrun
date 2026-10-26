@@ -4,6 +4,8 @@ import os
 from dataclasses import dataclass
 from datetime import date
 
+from .calc import parse_euro_cents
+
 
 def _database_url() -> str:
     url = os.environ.get("DATABASE_URL", "sqlite:///./adventrun.db")
@@ -30,6 +32,8 @@ class Settings:
     secure_cookies: bool
     challenge_start: date
     challenge_days: int
+    # The fundraising goal per km in cents (GOAL_PER_KM, e.g. 3,25); 0 shows no goal.
+    goal_per_km_cents: int
 
 
 def load_settings() -> Settings:
@@ -50,4 +54,5 @@ def load_settings() -> Settings:
         secure_cookies=os.environ.get("SECURE_COOKIES", "1" if os.environ.get("ENV") == "production" else "0") == "1",
         challenge_start=date.fromisoformat(os.environ.get("CHALLENGE_START", "2026-12-01")),
         challenge_days=int(os.environ.get("CHALLENGE_DAYS", "25")),
+        goal_per_km_cents=parse_euro_cents(os.environ.get("GOAL_PER_KM", "")) or 0,
     )
